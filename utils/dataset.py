@@ -14,10 +14,6 @@ ClipLabels = NewType('ClipLabels', Set[str])
 ClipConditions = NewType('ClipConditions', Set[str])
 ClipViews = NewType('ClipViews', Set[str])
 
-default_frame_transform = transforms.Compose([
-    transforms.Resize(size=(64, 32))
-])
-
 
 class CASIAB(data.Dataset):
     """CASIA-B multi-view gait dataset"""
@@ -88,6 +84,11 @@ class CASIAB(data.Dataset):
         # Labels, conditions and views in dataset,
         #   set of three attributes above
         self.metadata = Dict[str, Set[str]]
+
+        # Dictionaries for indexing frames and frame names by clip name
+        # and chip path when cache is on
+        self._cached_clips_frame_names: Optional[Dict[str, List[str]]] = None
+        self._cached_clips: Optional[Dict[str, torch.Tensor]] = None
 
         clip_names = sorted(os.listdir(self.root_dir))
 
@@ -166,8 +167,6 @@ class CASIAB(data.Dataset):
                 'views': set(self.views.tolist())
             }
 
-        self._cached_clips_frame_names: Optional[Dict[str, List[str]]] = None
-        self._cached_clips: Optional[Dict[str, torch.Tensor]] = None
         if self.cache_on:
             self._cached_clips_frame_names = dict()
             self._cached_clips = dict()
