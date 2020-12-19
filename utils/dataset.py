@@ -103,8 +103,9 @@ class CASIAB(data.Dataset):
             if len(os.listdir(clip_path)) < self.discard_threshold:
                 discard_clips_names.append(clip_name)
                 clip_names.remove(clip_name)
-        print(', '.join(discard_clips_names[:-1]),
-              'and', discard_clips_names[-1], 'will be discarded.')
+        if len(discard_clips_names) != 0:
+            print(', '.join(discard_clips_names[:-1]),
+                  'and', discard_clips_names[-1], 'will be discarded.')
 
         # clip name constructed by label, condition and view
         # e.g 002-bg-02-090 means clip from Subject #2
