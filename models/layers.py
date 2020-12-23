@@ -2,7 +2,6 @@ from typing import Union, Tuple
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class FocalConv2d(nn.Module):
@@ -24,4 +23,4 @@ class FocalConv2d(nn.Module):
         split_size = h // 2 ** self.halving
         z = x.split(split_size, dim=2)
         z = torch.cat([self.conv(_) for _ in z], dim=2)
-        return F.leaky_relu(z, inplace=True)
+        return z
