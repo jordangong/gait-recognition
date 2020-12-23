@@ -79,6 +79,7 @@ class Decoder(nn.Module):
     def forward(self, fa, fgs, fgd):
         x = torch.cat((fa, fgs, fgd), dim=1).view(-1, self.em_dim)
         x = F.leaky_relu(self.batch_norm_fc(self.fc(x)), 0.2)
+        x = x.view(-1, 64 * 8, 4, 2)
         x = F.leaky_relu(self.batch_norm1(self.trans_conv1(x)), 0.2)
         x = F.leaky_relu(self.batch_norm2(self.trans_conv2(x)), 0.2)
         x = F.leaky_relu(self.batch_norm3(self.trans_conv3(x)), 0.2)
