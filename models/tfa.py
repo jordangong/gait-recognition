@@ -3,6 +3,8 @@ import copy
 import torch
 from torch import nn as nn
 
+from models.layers import BasicConv1d
+
 
 class TemporalFeatureAggregator(nn.Module):
     def __init__(
@@ -17,11 +19,9 @@ class TemporalFeatureAggregator(nn.Module):
 
         # MTB1
         conv3x1 = nn.Sequential(
-            nn.Conv1d(in_channels, hidden_dim,
-                      kernel_size=3, padding=1, bias=False),
+            BasicConv1d(in_channels, hidden_dim, kernel_size=3, padding=1),
             nn.LeakyReLU(inplace=True),
-            nn.Conv1d(hidden_dim, in_channels,
-                      kernel_size=1, padding=0, bias=False)
+            BasicConv1d(hidden_dim, in_channels, kernel_size=1, padding=0)
         )
         self.conv1d3x1 = self._parted(conv3x1)
         self.avg_pool3x1 = nn.AvgPool1d(kernel_size=3, stride=1, padding=1)
@@ -29,11 +29,9 @@ class TemporalFeatureAggregator(nn.Module):
 
         # MTB2
         conv3x3 = nn.Sequential(
-            nn.Conv1d(in_channels, hidden_dim,
-                      kernel_size=3, padding=1, bias=False),
+            BasicConv1d(in_channels, hidden_dim, kernel_size=3, padding=1),
             nn.LeakyReLU(inplace=True),
-            nn.Conv1d(hidden_dim, in_channels,
-                      kernel_size=3, padding=1, bias=False)
+            BasicConv1d(hidden_dim, in_channels, kernel_size=3, padding=1)
         )
         self.conv1d3x3 = self._parted(conv3x3)
         self.avg_pool3x3 = nn.AvgPool1d(kernel_size=5, stride=1, padding=2)
