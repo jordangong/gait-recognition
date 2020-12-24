@@ -25,13 +25,15 @@ class FrameLevelPartFeatureExtractor(nn.Module):
         self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2)
 
     def forward(self, x):
-        x = F.leaky_relu(self.focal_conv1(x), inplace=True)
-        x = F.leaky_relu(self.focal_conv2(x), inplace=True)
+        x = self.focal_conv1(x)
+        x = self.focal_conv2(x)
         x = self.max_pool(x)
-        x = F.leaky_relu(self.focal_conv3(x), inplace=True)
-        x = F.leaky_relu(self.focal_conv4(x), inplace=True)
+
+        x = self.focal_conv3(x)
+        x = self.focal_conv4(x)
         x = self.max_pool(x)
-        x = F.leaky_relu(self.focal_conv5(x), inplace=True)
-        x = F.leaky_relu(self.focal_conv6(x), inplace=True)
+
+        x = self.focal_conv5(x)
+        x = self.focal_conv6(x)
 
         return x
