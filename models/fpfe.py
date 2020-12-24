@@ -1,5 +1,4 @@
-from torch import nn as nn
-from torch.nn import functional as F
+import torch.nn as nn
 
 from models.layers import FocalConv2d
 

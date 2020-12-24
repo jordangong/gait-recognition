@@ -1,7 +1,7 @@
 import copy
 
 import torch
-from torch import nn as nn
+import torch.nn as nn
 
 from models.layers import BasicConv1d
 
