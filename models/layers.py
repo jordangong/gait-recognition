@@ -117,3 +117,24 @@ class BasicConv1d(nn.Module):
 
     def forward(self, x):
         return self.conv(x)
+
+
+class HorizontalPyramidPooling(BasicConv2d):
+    def __init__(
+            self,
+            in_channels: int,
+            out_channels: int,
+            kernel_size: Union[int, Tuple[int, int]] = 1,
+            use_avg_pool: bool = False,
+            **kwargs
+    ):
+        super().__init__(in_channels, out_channels, kernel_size, **kwargs)
+        if use_avg_pool:
+            self.pool = nn.AdaptiveAvgPool2d(1)
+        else:
+            self.pool = nn.AdaptiveMaxPool2d(1)
+
+    def forward(self, x):
+        x = self.pool(x)
+        x = super().forward(x)
+        return x
