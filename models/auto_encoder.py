@@ -67,7 +67,7 @@ class Decoder(nn.Module):
 
     def __init__(
             self,
-            out_channels: int,
+            out_channels: int = 3,
             feature_channels: int = 64,
             input_dims: tuple[int, int, int] = (128, 128, 64)
     ):
@@ -102,6 +102,6 @@ class Decoder(nn.Module):
         x = self.trans_conv1(x)
         x = self.trans_conv2(x)
         x = self.trans_conv3(x)
-        x = F.sigmoid(self.trans_conv4(x))
+        x = torch.sigmoid(self.trans_conv4(x))
 
         return x
