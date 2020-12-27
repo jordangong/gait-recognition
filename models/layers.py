@@ -83,6 +83,22 @@ class DCGANConvTranspose2d(BasicConvTranspose2d):
             return super().forward(x)
 
 
+class BasicLinear(nn.Module):
+    def __init__(
+            self,
+            in_features: int,
+            out_features: int,
+    ):
+        super().__init__()
+        self.fc = nn.Linear(in_features, out_features, bias=False)
+        self.bn = nn.BatchNorm1d(out_features)
+
+    def forward(self, x):
+        x = self.fc(x)
+        x = self.bn(x)
+        return x
+
+
 class FocalConv2d(BasicConv2d):
     def __init__(
             self,
