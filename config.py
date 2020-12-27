@@ -16,7 +16,7 @@ config: Configuration = {
         # Name of dataset (CASIA-B or FVG)
         'name': 'CASIA-B',
         # Path to dataset root
-        'root_dir': 'dataset/output/CASIA-B',
+        'root_dir': 'data/CASIA-B-MRCNN/SEG',
         # The number of subjects for training
         'train_size': 74,
         # Number of sampled frames per sequence (Training only)
