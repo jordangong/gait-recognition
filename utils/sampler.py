@@ -1,5 +1,5 @@
 import random
-from typing import Iterator, Tuple
+from collections.abc import Iterator
 
 import numpy as np
 from torch.utils import data
@@ -11,7 +11,7 @@ class TripletSampler(data.Sampler):
     def __init__(
             self,
             data_source: CASIAB,
-            batch_size: Tuple[int, int]
+            batch_size: tuple[int, int]
     ):
         super().__init__(data_source)
         self.metadata_labels = data_source.metadata['labels']

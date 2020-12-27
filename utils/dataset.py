@@ -1,18 +1,18 @@
 import os
 import random
 import re
-from typing import Optional, Dict, NewType, Union, List, Set, Tuple
+from typing import Optional, NewType, Union
 
 import numpy as np
 import torch
+import torchvision.transforms as transforms
 from PIL import Image
 from torch.utils import data
-import torchvision.transforms as transforms
 from tqdm import tqdm
 
-ClipLabels = NewType('ClipLabels', Set[str])
-ClipConditions = NewType('ClipConditions', Set[str])
-ClipViews = NewType('ClipViews', Set[str])
+ClipLabels = NewType('ClipLabels', set[str])
+ClipConditions = NewType('ClipConditions', set[str])
+ClipViews = NewType('ClipViews', set[str])
 
 
 class CASIAB(data.Dataset):
@@ -25,11 +25,11 @@ class CASIAB(data.Dataset):
             train_size: int = 74,
             num_sampled_frames: int = 30,
             discard_threshold: int = 15,
-            selector: Optional[Dict[
+            selector: Optional[dict[
                 str, Union[ClipLabels, ClipConditions, ClipLabels]
             ]] = None,
             num_input_channels: int = 3,
-            frame_size: Tuple[int, int] = (64, 32),
+            frame_size: tuple[int, int] = (64, 32),
             cache_on: bool = False
     ):
         """
@@ -77,15 +77,15 @@ class CASIAB(data.Dataset):
         self.conditions: np.ndarray[np.str_]
         self.views: np.ndarray[np.str_]
         # Video clip directory names
-        self._clip_names: List[str] = []
+        self._clip_names: list[str] = []
         # Labels, conditions and views in dataset,
         #   set of three attributes above
-        self.metadata = Dict[str, Set[str]]
+        self.metadata = dict[str, set[str]]
 
         # Dictionaries for indexing frames and frame names by clip name
         # and chip path when cache is on
-        self._cached_clips_frame_names: Optional[Dict[str, List[str]]] = None
-        self._cached_clips: Optional[Dict[str, torch.Tensor]] = None
+        self._cached_clips_frame_names: Optional[dict[str, list[str]]] = None
+        self._cached_clips: Optional[dict[str, torch.Tensor]] = None
 
         clip_names = sorted(os.listdir(self.root_dir))
 
@@ -172,7 +172,7 @@ class CASIAB(data.Dataset):
     def __len__(self) -> int:
         return len(self.labels)
 
-    def __getitem__(self, index: int) -> Dict[str, Union[str, torch.Tensor]]:
+    def __getitem__(self, index: int) -> dict[str, Union[str, torch.Tensor]]:
         label = self.labels[index]
         condition = self.conditions[index]
         view = self.views[index]
@@ -217,8 +217,8 @@ class CASIAB(data.Dataset):
     def _load_cached_video(
             self,
             clip: torch.Tensor,
-            frame_names: List[str],
-            sampled_frame_names: List[str]
+            frame_names: list[str],
+            sampled_frame_names: list[str]
     ) -> torch.Tensor:
         # Mask the original clip when it is long enough
         if len(frame_names) >= self.num_sampled_frames:
@@ -248,7 +248,7 @@ class CASIAB(data.Dataset):
         return clip
 
     def _sample_frames(self, clip_path: str,
-                       is_caching: bool = False) -> List[str]:
+                       is_caching: bool = False) -> list[str]:
         if self.cache_on:
             if is_caching:
                 # Sort frame in advance for loading convenience

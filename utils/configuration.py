@@ -1,4 +1,4 @@
-from typing import TypedDict, Tuple
+from typing import TypedDict
 
 import torch
 
@@ -16,12 +16,12 @@ class DatasetConfiguration(TypedDict):
     num_sampled_frames: int
     discard_threshold: int
     num_input_channels: int
-    frame_size: Tuple[int, int]
+    frame_size: tuple[int, int]
     cache_on: bool
 
 
 class DataloaderConfiguration(TypedDict):
-    batch_size: Tuple[int, int]
+    batch_size: tuple[int, int]
     num_workers: int
     pin_memory: bool
 
@@ -29,7 +29,7 @@ class DataloaderConfiguration(TypedDict):
 class HyperparameterConfiguration(TypedDict):
     hidden_dim: int
     lr: int
-    betas: Tuple[float, float]
+    betas: tuple[float, float]
     hard_or_all: str
     margin: float
 

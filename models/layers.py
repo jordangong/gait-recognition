@@ -1,8 +1,8 @@
-from typing import Union, Tuple
+from typing import Union
 
 import torch
-import torch.nn.functional as F
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class BasicConv2d(nn.Module):
@@ -10,7 +10,7 @@ class BasicConv2d(nn.Module):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, Tuple[int, int]],
+            kernel_size: Union[int, tuple[int, int]],
             **kwargs
     ):
         super().__init__()
@@ -29,7 +29,7 @@ class VGGConv2d(BasicConv2d):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, Tuple[int, int]] = 3,
+            kernel_size: Union[int, tuple[int, int]] = 3,
             padding: int = 1,
             **kwargs
     ):
@@ -47,7 +47,7 @@ class BasicConvTranspose2d(nn.Module):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, Tuple[int, int]],
+            kernel_size: Union[int, tuple[int, int]],
             **kwargs
     ):
         super().__init__()
@@ -66,7 +66,7 @@ class DCGANConvTranspose2d(BasicConvTranspose2d):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, Tuple[int, int]] = 4,
+            kernel_size: Union[int, tuple[int, int]] = 4,
             stride: int = 2,
             padding: int = 1,
             is_last_layer: bool = False,
@@ -88,7 +88,7 @@ class FocalConv2d(BasicConv2d):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, Tuple[int, int]],
+            kernel_size: Union[int, tuple[int, int]],
             halving: int,
             **kwargs
     ):
@@ -108,7 +108,7 @@ class BasicConv1d(nn.Module):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, Tuple[int]],
+            kernel_size: Union[int, tuple[int]],
             **kwargs
     ):
         super(BasicConv1d, self).__init__()
@@ -124,7 +124,7 @@ class HorizontalPyramidPooling(BasicConv2d):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, Tuple[int, int]] = 1,
+            kernel_size: Union[int, tuple[int, int]] = 1,
             use_avg_pool: bool = False,
             **kwargs
     ):

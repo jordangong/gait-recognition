@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import torch
 import torch.nn as nn
 from torchvision.models import resnet50
@@ -10,7 +8,7 @@ from models.layers import HorizontalPyramidPooling
 class HorizontalPyramidMatching(nn.Module):
     def __init__(
             self,
-            scales: Tuple[int] = (1, 2, 4, 8),
+            scales: tuple[int, ...] = (1, 2, 4, 8),
             out_channels: int = 256,
             use_avg_pool: bool = False,
             **kwargs
