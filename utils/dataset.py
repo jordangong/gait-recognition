@@ -26,7 +26,7 @@ class CASIAB(data.Dataset):
             num_sampled_frames: int = 30,
             discard_threshold: int = 15,
             selector: Optional[dict[
-                str, Union[ClipLabels, ClipConditions, ClipLabels]
+                str, Union[ClipLabels, ClipConditions, ClipViews]
             ]] = None,
             num_input_channels: int = 3,
             frame_size: tuple[int, int] = (64, 32),
