@@ -1,5 +1,6 @@
 import random
 from collections.abc import Iterator
+from typing import Union
 
 import numpy as np
 from torch.utils import data
@@ -10,7 +11,7 @@ from utils.dataset import CASIAB
 class TripletSampler(data.Sampler):
     def __init__(
             self,
-            data_source: CASIAB,
+            data_source: Union[CASIAB],
             batch_size: tuple[int, int]
     ):
         super().__init__(data_source)
