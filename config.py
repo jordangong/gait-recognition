@@ -9,14 +9,14 @@ config: Configuration = {
         # GPU(s) used in training or testing, if CUDA enabled
         'CUDA_VISIBLE_DEVICES': '0',
         # Directory used in training or testing for temporary storage
-        'save_path': 'runs',
+        'save_dir': 'runs',
     },
     # Dataset settings
     'dataset': {
         # Name of dataset (CASIA-B or FVG)
         'name': 'CASIA-B',
         # Path to dataset root
-        'path': 'dataset/output/CASIA-B',
+        'root_dir': 'dataset/output/CASIA-B',
         # The number of subjects for training
         'train_size': 74,
         # Number of sampled frames per sequence (Training only)

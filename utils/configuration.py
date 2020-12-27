@@ -8,12 +8,12 @@ from utils.dataset import ClipLabels, ClipConditions, ClipViews
 class SystemConfiguration(TypedDict):
     device: torch.device
     CUDA_VISIBLE_DEVICES: str
-    save_path: str
+    save_dir: str
 
 
 class DatasetConfiguration(TypedDict):
     name: str
-    path: str
+    root_dir: str
     train_size: int
     num_sampled_frames: int
     discard_threshold: int
