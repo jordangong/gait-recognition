@@ -75,7 +75,7 @@ class CASIAB(data.Dataset):
         self.views: np.ndarray[np.str_]
         # Labels, classes, conditions and views in dataset,
         #   set of three attributes above
-        self.metadata = dict[str, list[str]]
+        self.metadata = dict[str, list[np.int64, str]]
 
         # Dictionaries for indexing frames and frame names by clip name
         # and chip path when cache is on
@@ -167,7 +167,10 @@ class CASIAB(data.Dataset):
     def __len__(self) -> int:
         return len(self.labels)
 
-    def __getitem__(self, index: int) -> dict[str, Union[str, torch.Tensor]]:
+    def __getitem__(
+            self,
+            index: int
+    ) -> dict[str, Union[np.int64, str, torch.Tensor]]:
         label = self.labels[index]
         condition = self.conditions[index]
         view = self.views[index]
