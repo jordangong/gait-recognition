@@ -2,7 +2,7 @@ from typing import TypedDict, Optional, Union
 
 import torch
 
-from utils.dataset import ClipLabels, ClipConditions, ClipViews
+from utils.dataset import ClipClasses, ClipConditions, ClipViews
 
 
 class SystemConfiguration(TypedDict):
@@ -17,7 +17,7 @@ class DatasetConfiguration(TypedDict):
     train_size: int
     num_sampled_frames: int
     discard_threshold: int
-    selector: Optional[dict[str, Union[ClipLabels, ClipConditions, ClipViews]]]
+    selector: Optional[dict[str, Union[ClipClasses, ClipConditions, ClipViews]]]
     num_input_channels: int
     frame_size: tuple[int, int]
     cache_on: bool
