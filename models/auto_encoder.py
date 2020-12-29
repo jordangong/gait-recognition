@@ -142,4 +142,5 @@ class AutoEncoder(nn.Module):
                              + self.mse_loss(f_c_c1_t2, f_c_c2_t2)
                              + self.xent_loss(y, y_))
 
-        return xrecon_loss_t2, (f_p_c1_t2, f_p_c2_t2), cano_cons_loss_t2
+        return (f_c_c1_t2, f_p_c1_t2, f_p_c2_t2,
+                xrecon_loss_t2, cano_cons_loss_t2)
