@@ -3,18 +3,45 @@ import copy
 import torch
 import torch.nn as nn
 
-from models.layers import BasicConv1d
+from models.layers import BasicConv1d, FocalConv2dBlock
+
+
+class FrameLevelPartFeatureExtractor(nn.Module):
+
+    def __init__(
+            self,
+            in_channels: int = 3,
+            feature_channels: int = 32,
+            kernel_sizes: tuple[tuple, ...] = ((5, 3), (3, 3), (3, 3)),
+            paddings: tuple[tuple, ...] = ((2, 1), (1, 1), (1, 1)),
+            halving: tuple[int, ...] = (0, 2, 3)
+    ):
+        super().__init__()
+        num_blocks = len(kernel_sizes)
+        out_channels = [feature_channels * 2 ** i for i in range(num_blocks)]
+        in_channels = [in_channels] + out_channels[:-1]
+        use_pools = [True] * (num_blocks - 1) + [False]
+        params = (in_channels, out_channels, kernel_sizes,
+                  paddings, halving, use_pools)
+
+        self.fconv_blocks = [FocalConv2dBlock(*_params)
+                             for _params in zip(*params)]
+
+    def forward(self, x):
+        for fconv_block in self.fconv_blocks:
+            x = fconv_block(x)
+        return x
 
 
 class TemporalFeatureAggregator(nn.Module):
     def __init__(
             self,
             in_channels: int,
-            squeeze: int = 4,
+            squeeze_ratio: int = 4,
             num_part: int = 16
     ):
-        super(TemporalFeatureAggregator, self).__init__()
-        hidden_dim = in_channels // squeeze
+        super().__init__()
+        hidden_dim = in_channels // squeeze_ratio
         self.num_part = num_part
 
         # MTB1
@@ -75,3 +102,41 @@ class TemporalFeatureAggregator(nn.Module):
         # Temporal Pooling
         ret = (feature3x1 + feature3x3).max(-1)[0]
         return ret
+
+
+class PartNet(nn.Module):
+    def __init__(
+            self,
+            in_channels: int = 3,
+            feature_channels: int = 32,
+            kernel_sizes: tuple[tuple, ...] = ((5, 3), (3, 3), (3, 3)),
+            paddings: tuple[tuple, ...] = ((2, 1), (1, 1), (1, 1)),
+            halving: tuple[int, ...] = (0, 2, 3),
+            squeeze_ratio: int = 4,
+            num_part: int = 16
+    ):
+        super().__init__()
+        self.num_part = num_part
+        self.fpfe = FrameLevelPartFeatureExtractor(
+            in_channels, feature_channels, kernel_sizes, paddings, halving
+        )
+
+        num_fconv_blocks = len(self.fpfe.fconv_blocks)
+        tfa_in_channels = feature_channels * 2 ** (num_fconv_blocks - 1)
+        self.tfa = TemporalFeatureAggregator(
+            tfa_in_channels, squeeze_ratio, self.num_part
+        )
+
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.max_pool = nn.AdaptiveMaxPool2d(1)
+
+    def forward(self, x):
+        x = self.fpfe(x)
+        n, t, c, h, w = x.size()
+        split_size = h // self.num_part
+        x = x.split(split_size, dim=3)
+        x = [self.avg_pool(x_) + self.max_pool(x_) for x_ in x]
+        x = [x_.view(n, t, c, -1) for x_ in x]
+        x = torch.cat(x, dim=3)
+        x = self.tfa(x)
+        return x
