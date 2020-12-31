@@ -23,17 +23,19 @@ class HorizontalPyramidMatching(nn.Module):
         self.backbone = resnet50(pretrained=True)
         self.in_channels = self.backbone.layer4[-1].conv1.in_channels
 
-        self.pyramids = [
+        self.pyramids = nn.ModuleList([
             self._make_pyramid(scale, **kwargs) for scale in self.scales
-        ]
+        ])
 
     def _make_pyramid(self, scale: int, **kwargs):
-        pyramid = [HorizontalPyramidPooling(self.in_channels,
-                                            self.out_channels,
-                                            use_avg_pool=self.use_avg_pool,
-                                            use_max_pool=self.use_max_pool,
-                                            **kwargs)
-                   for _ in range(scale)]
+        pyramid = nn.ModuleList([
+            HorizontalPyramidPooling(self.in_channels,
+                                     self.out_channels,
+                                     use_avg_pool=self.use_avg_pool,
+                                     use_max_pool=self.use_max_pool,
+                                     **kwargs)
+            for _ in range(scale)
+        ])
         return pyramid
 
     def forward(self, x):
