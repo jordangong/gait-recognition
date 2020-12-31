@@ -129,7 +129,7 @@ class AutoEncoder(nn.Module):
         self.xent_loss = nn.CrossEntropyLoss()
 
     def forward(self, x_c1_t1, x_c1_t2, x_c2_t2, y):
-        # t2 is random time step
+        # t1 is random time step
         (f_a_c1_t1, f_c_c1_t1, _) = self.encoder(x_c1_t1)
         (_, f_c_c1_t2, f_p_c1_t2) = self.encoder(x_c1_t2)
         (_, f_c_c2_t2, f_p_c2_t2) = self.encoder(x_c2_t2)
@@ -142,5 +142,5 @@ class AutoEncoder(nn.Module):
                              + self.mse_loss(f_c_c1_t2, f_c_c2_t2)
                              + self.xent_loss(y, y_))
 
-        return (f_c_c1_t2, f_p_c1_t2, f_p_c2_t2,
+        return ((f_c_c1_t2, f_p_c1_t2, f_p_c2_t2),
                 xrecon_loss_t2, cano_cons_loss_t2)
