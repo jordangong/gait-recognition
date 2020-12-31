@@ -154,7 +154,7 @@ class BasicConv1d(nn.Module):
             kernel_size: Union[int, tuple[int]],
             **kwargs
     ):
-        super(BasicConv1d, self).__init__()
+        super().__init__()
         self.conv = nn.Conv1d(in_channels, out_channels, kernel_size,
                               bias=False, **kwargs)
 

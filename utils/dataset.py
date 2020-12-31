@@ -54,7 +54,7 @@ class CASIAB(data.Dataset):
             num_input_channels = 3, frame_height = 64, frame_width = 32)
             need about 22 GB of RAM.
         """
-        super(CASIAB, self).__init__()
+        super().__init__()
         self._root_dir = root_dir
         self._is_train = is_train
         self._num_sampled_frames = num_sampled_frames
