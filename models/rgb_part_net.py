@@ -44,7 +44,7 @@ class RGBPartNet(nn.Module):
                       f_p_c2: torch.Tensor) -> torch.Tensor:
         f_p_c1_mean = f_p_c1.mean(dim=0)
         f_p_c2_mean = f_p_c2.mean(dim=0)
-        return self.mse_loss(f_p_c1_mean, f_p_c2_mean).item()
+        return self.mse_loss(f_p_c1_mean, f_p_c2_mean)
 
     def forward(self, x_c1, x_c2, y):
         # Step 0: Swap batch_size and time dimensions for next step
@@ -55,7 +55,7 @@ class RGBPartNet(nn.Module):
         # t, n, c, h, w
         num_frames = len(x_c1)
         f_c_c1, f_p_c1, f_p_c2 = [], [], []
-        xrecon_loss, cano_cons_loss = 0, 0
+        xrecon_loss, cano_cons_loss = torch.zeros(1), torch.zeros(1)
         for t2 in range(num_frames):
             t1 = random.randrange(num_frames)
             output = self.ae(x_c1[t1], x_c1[t2], x_c2[t2], y)
@@ -86,7 +86,6 @@ class RGBPartNet(nn.Module):
         # Step 3: Cat feature map together and calculate losses
         x = torch.cat(x_c, x_p)
         # Losses
-        xrecon_loss /= num_frames
         f_p_c2 = torch.stack(f_p_c2)
         pose_sim_loss = self.pose_sim_loss(f_p_c1, f_p_c2)
         cano_cons_loss /= num_frames
