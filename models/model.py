@@ -87,8 +87,6 @@ class Model:
             nn.init.zeros_(m.bias)
         elif isinstance(m, nn.Linear):
             nn.init.xavier_uniform_(m.weight)
-        elif isinstance(m, nn.Parameter):
-            nn.init.xavier_uniform_(m)
 
     def _parse_dataset_config(
             self,
