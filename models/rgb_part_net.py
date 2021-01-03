@@ -76,7 +76,6 @@ class RGBPartNet(nn.Module):
         if self.training:
             # TODO Implement Batch All triplet loss function
             batch_all_triplet_loss = torch.tensor(0.)
-            print(*losses, batch_all_triplet_loss)
             loss = torch.sum(torch.stack((*losses, batch_all_triplet_loss)))
             return loss
         else:

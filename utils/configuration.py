@@ -30,11 +30,21 @@ class DataloaderConfiguration(TypedDict):
 
 
 class HyperparameterConfiguration(TypedDict):
-    hidden_dim: int
+    ae_feature_channels: int
+    f_a_c_p_dims: tuple[int, int, int]
+    hpm_scales: tuple[int, ...]
+    hpm_use_avg_pool: bool
+    hpm_use_max_pool: bool
+    fpfe_feature_channels: int
+    fpfe_kernel_sizes: tuple[tuple, ...]
+    fpfe_paddings: tuple[tuple, ...]
+    fpfe_halving: tuple[int, ...]
+    tfa_squeeze_ratio: int
+    tfa_num_parts: int
+    embedding_dims: int
+    triplet_margin: float
     lr: int
     betas: tuple[float, float]
-    hard_or_all: str
-    margin: float
 
 
 class ModelConfiguration(TypedDict):

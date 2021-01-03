@@ -43,17 +43,35 @@ config: Configuration = {
     },
     # Hyperparameter tuning
     'hyperparameter': {
-        # Hidden dimension of FC
-        'hidden_dim': 256,
+        # Auto-encoder feature channels coefficient
+        'ae_feature_channels': 64,
+        # Appearance, canonical and pose feature dimensions
+        'f_a_c_p_dims': (128, 128, 64),
+        # HPM pyramid scales, of which sum is number of parts
+        'hpm_scales': (1, 2, 4),
+        # Global pooling method
+        'hpm_use_avg_pool': True,
+        'hpm_use_max_pool': True,
+        # FConv feature channels coefficient
+        'fpfe_feature_channels': 32,
+        # FConv blocks kernel sizes
+        'fpfe_kernel_sizes': ((5, 3), (3, 3), (3, 3)),
+        # FConv blocks paddings
+        'fpfe_paddings': ((2, 1), (1, 1), (1, 1)),
+        # FConv blocks halving
+        'fpfe_halving': (0, 2, 3),
+        # Attention squeeze ratio
+        'tfa_squeeze_ratio': 4,
+        # Number of parts after Part Net
+        'tfa_num_parts': 16,
+        # Embedding dimension for each part
+        'embedding_dims': 256,
+        # Triplet loss margin
+        'triplet_margin': 0.2,
         # Initial learning rate of Adam Optimizer
         'lr': 1e-4,
         # Betas of Adam Optimizer
         'betas': (0.9, 0.999),
-        # Batch Hard or Batch Full Triplet loss
-        # `hard` for BH, `all` for BA
-        'hard_or_all': 'all',
-        # Triplet loss margin
-        'margin': 0.2,
     },
     # Model metadata
     'model': {
