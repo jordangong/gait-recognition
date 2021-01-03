@@ -122,12 +122,11 @@ class AutoEncoder(nn.Module):
         self.encoder = Encoder(channels, feature_channels, embedding_dims)
         self.decoder = Decoder(embedding_dims, feature_channels, channels)
 
-        if self.training:
-            f_c_dim = embedding_dims[1]
-            self.classifier = nn.Sequential(
-                nn.LeakyReLU(0.2, inplace=True),
-                BasicLinear(f_c_dim, num_class)
-            )
+        f_c_dim = embedding_dims[1]
+        self.classifier = nn.Sequential(
+            nn.LeakyReLU(0.2, inplace=True),
+            BasicLinear(f_c_dim, num_class)
+        )
 
     def forward(self, x_c1_t1, x_c1_t2, x_c2_t2, y=None):
         # x_c1_t2 is the frame for later module
