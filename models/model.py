@@ -2,6 +2,7 @@ from typing import Union, Optional
 
 import numpy as np
 import torch
+import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
@@ -67,6 +68,7 @@ class Model:
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, 500, 0.9)
 
         self.rbg_pn.train()
+        self.rbg_pn.apply(self.init_weights)
         for iter_i, (x_c1, x_c2) in enumerate(dataloader):
             loss = self.rbg_pn(x_c1['clip'], x_c2['clip'], x_c1['label'])
             loss.backward()
@@ -75,6 +77,18 @@ class Model:
 
             if iter_i == self.meta['total_iter']:
                 break
+
+    @staticmethod
+    def init_weights(m):
+        if isinstance(m, nn.modules.conv._ConvNd):
+            nn.init.xavier_uniform_(m.weight)
+        elif isinstance(m, nn.modules.batchnorm._NormBase):
+            nn.init.normal_(m.weight, 1.0, 0.01)
+            nn.init.zeros_(m.bias)
+        elif isinstance(m, nn.Linear):
+            nn.init.xavier_uniform_(m.weight)
+        elif isinstance(m, nn.Parameter):
+            nn.init.xavier_uniform_(m)
 
     def _parse_dataset_config(
             self,

@@ -41,9 +41,7 @@ class RGBPartNet(nn.Module):
         )
         total_parts = sum(hpm_scales) + tfa_num_parts
         empty_fc = torch.empty(total_parts, out_channels, embedding_dims)
-        self.fc_mat = nn.Parameter(nn.init.xavier_uniform_(empty_fc))
-
-        # TODO Weight inti here
+        self.fc_mat = nn.Parameter(empty_fc)
 
     def fc(self, x):
         return torch.matmul(x, self.fc_mat)
