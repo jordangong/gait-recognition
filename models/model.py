@@ -81,12 +81,14 @@ class Model:
     @staticmethod
     def init_weights(m):
         if isinstance(m, nn.modules.conv._ConvNd):
-            nn.init.xavier_uniform_(m.weight)
+            nn.init.normal_(m.weight, 0.0, 0.01)
         elif isinstance(m, nn.modules.batchnorm._NormBase):
             nn.init.normal_(m.weight, 1.0, 0.01)
             nn.init.zeros_(m.bias)
         elif isinstance(m, nn.Linear):
             nn.init.xavier_uniform_(m.weight)
+        elif isinstance(m, RGBPartNet):
+            nn.init.xavier_uniform_(m.fc_mat)
 
     def _parse_dataset_config(
             self,
