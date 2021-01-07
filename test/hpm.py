@@ -1,6 +1,6 @@
 import torch
 
-from models import HorizontalPyramidMatching
+from models.hpm import HorizontalPyramidMatching
 
 T, N, C, H, W = 15, 4, 256, 32, 16
 

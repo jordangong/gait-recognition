@@ -1,6 +1,6 @@
 import torch
 
-from models import RGBPartNet
+from models.rgb_part_net import RGBPartNet
 
 P, K = 2, 4
 N, T, C, H, W = P * K, 10, 3, 64, 32

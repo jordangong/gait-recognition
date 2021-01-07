@@ -146,4 +146,5 @@ dmypy.json
 
 # Dataset
 data/
-
+# Runtime
+runs/
