@@ -1,5 +1,5 @@
 import os
-from typing import Union, Optional, Tuple, List, Dict
+from typing import Union, Optional, Tuple, List, Dict, Set
 
 import numpy as np
 import torch
@@ -220,13 +220,15 @@ class Model:
 
         return self._gen_sig(list(_config.values()))
 
-    def _gen_sig(self, values: Union[Tuple, List, str, int, float]) -> str:
+    def _gen_sig(self, values: Union[Tuple, List, Set, str, int, float]) -> str:
         strings = []
         for v in values:
             if isinstance(v, str):
                 strings.append(v)
-            elif isinstance(v, (Tuple, List)):
+            elif isinstance(v, (Tuple, List, Set)):
                 strings.append(self._gen_sig(v))
+            elif isinstance(v, Dict):
+                strings.append(self._gen_sig(list(v.values())))
             else:
                 strings.append(str(v))
         return '_'.join(strings)
