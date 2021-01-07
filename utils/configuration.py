@@ -1,12 +1,10 @@
 from typing import TypedDict, Optional, Union
 
-import torch
-
 from utils.dataset import ClipClasses, ClipConditions, ClipViews
 
 
 class SystemConfiguration(TypedDict):
-    device: torch.device
+    disable_acc: bool
     CUDA_VISIBLE_DEVICES: str
     save_dir: str
 

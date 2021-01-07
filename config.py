@@ -1,12 +1,10 @@
-import torch
-
 from utils.configuration import Configuration
 
 config: Configuration = {
     'system': {
-        # Device(s) used in training and testing (CPU or CUDA)
-        'device': torch.device('cuda'),
-        # GPU(s) used in training or testing, if CUDA enabled
+        # Disable accelerator
+        'disable_acc': False,
+        # GPU(s) used in training or testing if available
         'CUDA_VISIBLE_DEVICES': '0',
         # Directory used in training or testing for temporary storage
         'save_dir': 'runs',
