@@ -220,13 +220,15 @@ class Model:
 
         return self._gen_sig(list(_config.values()))
 
-    def _gen_sig(self, values: Union[tuple, list, str, int, float]) -> str:
+    def _gen_sig(self, values: Union[tuple, list, set, str, int, float]) -> str:
         strings = []
         for v in values:
             if isinstance(v, str):
                 strings.append(v)
-            elif isinstance(v, (tuple, list)):
+            elif isinstance(v, (tuple, list, set)):
                 strings.append(self._gen_sig(v))
+            elif isinstance(v, dict):
+                strings.append(self._gen_sig(list(v.values())))
             else:
                 strings.append(str(v))
         return '_'.join(strings)
