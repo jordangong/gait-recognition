@@ -1,6 +1,5 @@
 import random
-from collections import Iterator
-from typing import Union, Tuple
+from typing import Union, Tuple, Iterator
 
 import numpy as np
 from torch.utils import data
