@@ -1,4 +1,5 @@
 import random
+from typing import Tuple, List
 
 import torch
 import torch.nn as nn
@@ -16,14 +17,14 @@ class RGBPartNet(nn.Module):
             num_class: int = 74,
             ae_in_channels: int = 3,
             ae_feature_channels: int = 64,
-            f_a_c_p_dims: tuple[int, int, int] = (128, 128, 64),
-            hpm_scales: tuple[int, ...] = (1, 2, 4),
+            f_a_c_p_dims: Tuple[int, int, int] = (128, 128, 64),
+            hpm_scales: Tuple[int, ...] = (1, 2, 4),
             hpm_use_avg_pool: bool = True,
             hpm_use_max_pool: bool = True,
             fpfe_feature_channels: int = 32,
-            fpfe_kernel_sizes: tuple[tuple, ...] = ((5, 3), (3, 3), (3, 3)),
-            fpfe_paddings: tuple[tuple, ...] = ((2, 1), (1, 1), (1, 1)),
-            fpfe_halving: tuple[int, ...] = (0, 2, 3),
+            fpfe_kernel_sizes: Tuple[Tuple, ...] = ((5, 3), (3, 3), (3, 3)),
+            fpfe_paddings: Tuple[Tuple, ...] = ((2, 1), (1, 1), (1, 1)),
+            fpfe_halving: Tuple[int, ...] = (0, 2, 3),
             tfa_squeeze_ratio: int = 4,
             tfa_num_parts: int = 16,
             embedding_dims: int = 256,
@@ -142,8 +143,8 @@ class RGBPartNet(nn.Module):
             return (x_c_c1, x_p_c1), None
 
     @staticmethod
-    def _pose_sim_loss(f_p_c1: list[torch.Tensor],
-                       f_p_c2: list[torch.Tensor]) -> torch.Tensor:
+    def _pose_sim_loss(f_p_c1: List[torch.Tensor],
+                       f_p_c2: List[torch.Tensor]) -> torch.Tensor:
         f_p_c1_mean = torch.stack(f_p_c1).mean(dim=0)
         f_p_c2_mean = torch.stack(f_p_c2).mean(dim=0)
         return F.mse_loss(f_p_c1_mean, f_p_c2_mean)

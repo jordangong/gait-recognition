@@ -1,7 +1,7 @@
 import os
 import random
 import re
-from typing import Optional, NewType, Union
+from typing import Optional, NewType, Union, List, Tuple
 
 import numpy as np
 import torch
@@ -30,7 +30,7 @@ class CASIAB(data.Dataset):
                 str, Union[ClipClasses, ClipConditions, ClipViews]
             ]] = None,
             num_input_channels: int = 3,
-            frame_size: tuple[int, int] = (64, 32),
+            frame_size: Tuple[int, int] = (64, 32),
             cache_on: bool = False
     ):
         """
@@ -75,15 +75,15 @@ class CASIAB(data.Dataset):
         self.views: np.ndarray[np.str_]
         # Labels, classes, conditions and views in dataset,
         #   set of three attributes above
-        self.metadata = dict[str, list[np.int64, str]]
+        self.metadata = dict[str, List[np.int64, str]]
 
         # Dictionaries for indexing frames and frame names by clip name
         # and chip path when cache is on
-        self._cached_clips_frame_names: Optional[dict[str, list[str]]] = None
+        self._cached_clips_frame_names: Optional[dict[str, List[str]]] = None
         self._cached_clips: Optional[dict[str, torch.Tensor]] = None
 
         # Video clip directory names
-        self._clip_names: list[str] = []
+        self._clip_names: List[str] = []
         clip_names = sorted(os.listdir(self._root_dir))
 
         if self._is_train:
@@ -215,8 +215,8 @@ class CASIAB(data.Dataset):
     def _load_cached_video(
             self,
             clip: torch.Tensor,
-            frame_names: list[str],
-            sampled_frame_names: list[str]
+            frame_names: List[str],
+            sampled_frame_names: List[str]
     ) -> torch.Tensor:
         # Mask the original clip when it is long enough
         if len(frame_names) >= self._num_sampled_frames:
@@ -246,7 +246,7 @@ class CASIAB(data.Dataset):
         return clip
 
     def _sample_frames(self, clip_path: str,
-                       is_caching: bool = False) -> list[str]:
+                       is_caching: bool = False) -> List[str]:
         if self._cache_on:
             if is_caching:
                 # Sort frame in advance for loading convenience

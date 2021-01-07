@@ -1,6 +1,6 @@
 import random
 from collections.abc import Iterator
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np
 from torch.utils import data
@@ -12,7 +12,7 @@ class TripletSampler(data.Sampler):
     def __init__(
             self,
             data_source: Union[CASIAB],
-            batch_size: tuple[int, int]
+            batch_size: Tuple[int, int]
     ):
         super().__init__(data_source)
         self.metadata_labels = data_source.metadata['labels']
