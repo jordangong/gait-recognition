@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional, Union, Tuple
+from typing import TypedDict, Optional, Union, Tuple, Dict
 
 from utils.dataset import ClipClasses, ClipConditions, ClipViews
 
@@ -15,7 +15,7 @@ class DatasetConfiguration(TypedDict):
     train_size: int
     num_sampled_frames: int
     discard_threshold: int
-    selector: Optional[dict[str, Union[ClipClasses, ClipConditions, ClipViews]]]
+    selector: Optional[Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]]
     num_input_channels: int
     frame_size: Tuple[int, int]
     cache_on: bool

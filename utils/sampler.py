@@ -1,5 +1,5 @@
 import random
-from collections.abc import Iterator
+from collections import Iterator
 from typing import Union, Tuple
 
 import numpy as np
