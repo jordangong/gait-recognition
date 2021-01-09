@@ -84,7 +84,7 @@ class RGBPartNet(nn.Module):
             loss = torch.sum(torch.stack(losses))
             return loss, [loss.item() for loss in losses]
         else:
-            return x
+            return x.unsqueeze(1).view(-1)
 
     def _disentangle(self, x_c1, x_c2=None, y=None):
         num_frames = len(x_c1)
