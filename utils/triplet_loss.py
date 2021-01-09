@@ -30,8 +30,9 @@ class BatchAllTripletLoss(nn.Module):
         all_loss = F.relu(self.margin + positive_negative_dist).view(p, -1)
 
         # Non-zero parted mean
-        parted_loss_mean = all_loss.sum(1) / (all_loss != 0).sum(1)
-        parted_loss_mean[parted_loss_mean == float('Inf')] = 0
+        non_zero_counts = (all_loss != 0).sum(1)
+        parted_loss_mean = all_loss.sum(1) / non_zero_counts
+        parted_loss_mean[non_zero_counts == 0] = 0
 
         loss = parted_loss_mean.sum()
         return loss
