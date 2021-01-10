@@ -12,12 +12,12 @@ if CUDA_VISIBLE_DEVICES:
 model = Model(config['system'], config['model'], config['hyperparameter'])
 
 # 3 models for different conditions
-dataset_selectors = [
-    {'conditions': ClipConditions({r'nm-0\d'})},
-    {'conditions': ClipConditions({r'nm-0\d', r'bg-0\d'})},
-    {'conditions': ClipConditions({r'nm-0\d', r'cl-0\d'})},
-]
-for selector in dataset_selectors:
+dataset_selectors = {
+    'nm': {'conditions': ClipConditions({r'nm-0\d'})},
+    'bg': {'conditions': ClipConditions({r'nm-0\d', r'bg-0\d'})},
+    'cl': {'conditions': ClipConditions({r'nm-0\d', r'cl-0\d'})},
+}
+for selector in dataset_selectors.values():
     model.fit(
         dict(**config['dataset'], **{'selector': selector}),
         config['dataloader']
