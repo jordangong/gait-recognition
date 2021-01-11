@@ -15,8 +15,8 @@ class BatchAllTripletLoss(nn.Module):
 
         # Euclidean distance p x n x n
         x_squared_sum = torch.sum(x ** 2, dim=2)
-        x1_squared_sum = x_squared_sum.unsqueeze(1)
-        x2_squared_sum = x_squared_sum.unsqueeze(2)
+        x1_squared_sum = x_squared_sum.unsqueeze(2)
+        x2_squared_sum = x_squared_sum.unsqueeze(1)
         x1_times_x2_sum = x @ x.transpose(1, 2)
         dist = torch.sqrt(
             F.relu(x1_squared_sum - 2 * x1_times_x2_sum + x2_squared_sum)
