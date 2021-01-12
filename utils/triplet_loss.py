@@ -15,8 +15,8 @@ class BatchAllTripletLoss(nn.Module):
 
         # Euclidean distance p x n x n
         x_squared_sum = torch.sum(x ** 2, dim=2)
-        x1_squared_sum = x_squared_sum.unsqueeze(1)
-        x2_squared_sum = x_squared_sum.unsqueeze(2)
+        x1_squared_sum = x_squared_sum.unsqueeze(2)
+        x2_squared_sum = x_squared_sum.unsqueeze(1)
         x1_times_x2_sum = x @ x.transpose(1, 2)
         dist = torch.sqrt(
             F.relu(x1_squared_sum - 2 * x1_times_x2_sum + x2_squared_sum)
@@ -30,8 +30,9 @@ class BatchAllTripletLoss(nn.Module):
         all_loss = F.relu(self.margin + positive_negative_dist).view(p, -1)
 
         # Non-zero parted mean
-        parted_loss_mean = all_loss.sum(1) / (all_loss != 0).sum(1)
-        parted_loss_mean[parted_loss_mean == float('Inf')] = 0
+        non_zero_counts = (all_loss != 0).sum(1)
+        parted_loss_mean = all_loss.sum(1) / non_zero_counts
+        parted_loss_mean[non_zero_counts == 0] = 0
 
         loss = parted_loss_mean.sum()
         return loss

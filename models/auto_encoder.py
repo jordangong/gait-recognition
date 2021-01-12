@@ -130,7 +130,7 @@ class AutoEncoder(nn.Module):
             BasicLinear(f_c_dim, num_class)
         )
 
-    def forward(self, x_c1_t1, x_c1_t2, x_c2_t2, y=None):
+    def forward(self, x_c1_t2, x_c1_t1=None, x_c2_t2=None, y=None):
         # x_c1_t2 is the frame for later module
         (f_a_c1_t2, f_c_c1_t2, f_p_c1_t2) = self.encoder(x_c1_t2)
 
