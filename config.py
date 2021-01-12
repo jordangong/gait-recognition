@@ -1,6 +1,4 @@
-from utils.configuration import Configuration
-
-config: Configuration = {
+config = {
     'system': {
         # Disable accelerator
         'disable_acc': False,

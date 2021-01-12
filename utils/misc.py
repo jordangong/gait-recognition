@@ -1,9 +1,8 @@
 import os
+from typing import Dict
 
-from utils.configuration import SystemConfiguration
 
-
-def set_visible_cuda(config: SystemConfiguration):
+def set_visible_cuda(config: Dict):
     """Set environment variable CUDA device(s)"""
     CUDA_VISIBLE_DEVICES = config.get('CUDA_VISIBLE_DEVICES', None)
     if CUDA_VISIBLE_DEVICES:
