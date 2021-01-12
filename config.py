@@ -1,9 +1,7 @@
 config = {
     'system': {
-        # Disable accelerator
-        'disable_acc': False,
-        # GPU(s) used in training or testing if available
-        'CUDA_VISIBLE_DEVICES': '0',
+        # The number of processes for the replication
+        'nprocs': 8,
         # Directory used in training or testing for temporary storage
         'save_dir': 'runs',
     },
@@ -28,10 +26,10 @@ config = {
     },
     # Dataloader settings
     'dataloader': {
-        # Batch size (pr, k)
+        # Batch size (pr, k) * `nprocs`
         # `pr` denotes number of persons
         # `k` denotes number of sequences per person
-        'batch_size': (8, 16),
+        'batch_size': (3, 6),
         # Number of workers of Dataloader
         'num_workers': 4,
         # Faster data transfer from RAM to GPU if enabled

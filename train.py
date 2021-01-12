@@ -1,9 +1,7 @@
 from config import config
 from models import Model
 from utils.dataset import ClipConditions
-from utils.misc import set_visible_cuda
 
-set_visible_cuda(config['system'])
 model = Model(config['system'], config['model'], config['hyperparameter'])
 
 # 3 models for different conditions
