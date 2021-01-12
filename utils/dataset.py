@@ -75,7 +75,7 @@ class CASIAB(data.Dataset):
         self.views: np.ndarray[np.str_]
         # Labels, classes, conditions and views in dataset,
         #   set of three attributes above
-        self.metadata = Dict[str, List[np.int64, str]]
+        self.metadata: Dict[str, List[np.int64, str]]
 
         # Dictionaries for indexing frames and frame names by clip name
         # and chip path when cache is on
