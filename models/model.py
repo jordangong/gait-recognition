@@ -118,8 +118,8 @@ class Model:
         # Prepare for optimizer and scheduler
         optim_hp = self.hp.get('optimizer', {})
         # Scale learning rate to world size
-        if optim_hp['lr']:
-            optim_hp['lr'] *= xm.xrt_world_size()
+        lr = optim_hp.get('lr', '1-e3')
+        optim_hp['lr'] = lr * xm.xrt_world_size()
         sched_hp = self.hp.get('scheduler', {})
         device = xm.xla_device()
         rgb_pn = wrapped_rgb_pn.to(device)
