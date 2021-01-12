@@ -27,7 +27,7 @@ class DataloaderConfiguration(TypedDict):
     pin_memory: bool
 
 
-class HyperparameterConfiguration(TypedDict):
+class ModelHPConfiguration(TypedDict):
     ae_feature_channels: int
     f_a_c_p_dims: tuple[int, int, int]
     hpm_scales: tuple[int, ...]
@@ -41,8 +41,23 @@ class HyperparameterConfiguration(TypedDict):
     tfa_num_parts: int
     embedding_dims: int
     triplet_margin: float
+
+
+class OptimizerHPConfiguration(TypedDict):
     lr: int
     betas: tuple[float, float]
+    weight_decay: float
+
+
+class SchedulerHPConfiguration(TypedDict):
+    step_size: int
+    gamma: float
+
+
+class HyperparameterConfiguration(TypedDict):
+    model: ModelHPConfiguration
+    optimizer: OptimizerHPConfiguration
+    scheduler: SchedulerHPConfiguration
 
 
 class ModelConfiguration(TypedDict):

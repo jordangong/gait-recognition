@@ -111,11 +111,12 @@ class Model:
         dataset = self._parse_dataset_config(dataset_config)
         dataloader = self._parse_dataloader_config(dataset, dataloader_config)
         # Prepare for model, optimizer and scheduler
-        hp = self.hp.copy()
-        lr, betas = hp.pop('lr', 1e-4), hp.pop('betas', (0.9, 0.999))
-        self.rgb_pn = RGBPartNet(self.train_size, self.in_channels, **hp)
-        self.optimizer = optim.Adam(self.rgb_pn.parameters(), lr, betas)
-        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, 500, 0.9)
+        model_hp = self.hp.get('model', {})
+        optim_hp = self.hp.get('optimizer', {})
+        sched_hp = self.hp.get('scheduler', {})
+        self.rgb_pn = RGBPartNet(self.train_size, self.in_channels, **model_hp)
+        self.optimizer = optim.Adam(self.rgb_pn.parameters(), **optim_hp)
+        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, **sched_hp)
         self.writer = SummaryWriter(self._log_name)
         # Try to accelerate computation using CUDA or others
         self._accelerate()
@@ -200,9 +201,8 @@ class Model:
             iter_, dataset_config, dataset_selectors
         )
         # Init models
-        hp = self.hp.copy()
-        hp.pop('lr'), hp.pop('betas')
-        self.rgb_pn = RGBPartNet(ae_in_channels=self.in_channels, **hp)
+        model_hp = self.hp.get('model', {})
+        self.rgb_pn = RGBPartNet(ae_in_channels=self.in_channels, **model_hp)
         # Try to accelerate computation using CUDA or others
         self._accelerate()
 
