@@ -182,11 +182,11 @@ class Model:
     def predict_all(
             self,
             iter_: int,
-            dataset_config: dict,
+            dataset_config: Dict,
             dataset_selectors: Dict[
                 str, Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
             ],
-            dataloader_config: dict,
+            dataloader_config: Dict,
     ) -> Dict[str, torch.Tensor]:
         self.is_train = False
         # Split gallery and probe dataset
