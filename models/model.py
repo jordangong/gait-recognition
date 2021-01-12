@@ -273,7 +273,7 @@ class Model:
                 (labels_p, _, views_p, features_p) = probe_samples_c.values()
                 views_p = np.asarray(views_p)
                 for (v_p_i, view_p) in enumerate(probe_views_meta):
-                    probe_view_mask = (views_p == view_g)
+                    probe_view_mask = (views_p == view_p)
                     f_p = features_p[probe_view_mask]
                     y_p = labels_p[probe_view_mask]
                     # Euclidean distance
