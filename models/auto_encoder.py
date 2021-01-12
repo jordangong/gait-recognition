@@ -126,7 +126,7 @@ class AutoEncoder(nn.Module):
 
         f_c_dim = embedding_dims[1]
         self.classifier = nn.Sequential(
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.LeakyReLU(0.2),
             BasicLinear(f_c_dim, num_class)
         )
 

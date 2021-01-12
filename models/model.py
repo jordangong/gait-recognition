@@ -129,14 +129,12 @@ class Model:
 
         para_loader = pl.ParallelLoader(dataloader, [device])
         self._train_loop(
-            rank,
             para_loader.per_device_loader(device),
             rgb_pn, optimizer, scheduler, writer
         )
 
     def _train_loop(
             self,
-            rank: int,
             dataloader: pl.PerDeviceLoader,
             rgb_pn: RGBPartNet,
             optimizer: optim.Adam,
@@ -170,10 +168,10 @@ class Model:
 
             # Write losses to TensorBoard
             writer.add_scalar(
-                f'[xla:{rank}]Loss/all', loss.item(), iter_i + 1
+                f'[xla:{xm.get_ordinal()}]Loss/all', loss.item(), iter_i + 1
             )
             writer.add_scalars(
-                f'[xla:{rank}]Loss/details', dict(zip([
+                f'[xla:{xm.get_ordinal()}]Loss/details', dict(zip([
                     'Cross reconstruction loss', 'Pose similarity loss',
                     'Canonical consistency loss', 'Batch All triplet loss'
                 ], metrics)),
@@ -181,7 +179,7 @@ class Model:
             )
 
             if iter_i % 100 == 99:
-                print('[xla:{0}]({1:5d})'.format(rank, iter_i + 1),
+                print('[xla:{0}]({1:5d})'.format(xm.get_ordinal(), iter_i + 1),
                       'loss: {:6.3f}'.format(loss),
                       '(xrecon = {:f}, pose_sim = {:f},'
                       ' cano_cons = {:f}, ba_trip = {:f})'.format(*metrics),
