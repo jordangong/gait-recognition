@@ -315,7 +315,7 @@ class Model:
             self,
             dataset_config: DatasetConfiguration,
             dataloader_config: DataloaderConfiguration,
-    ) -> tuple[DataLoader, dict[str: DataLoader]]:
+    ) -> tuple[DataLoader, dict[str, DataLoader]]:
         dataset_name = dataset_config.get('name', 'CASIA-B')
         if dataset_name == 'CASIA-B':
             gallery_dataset = self._parse_dataset_config(
