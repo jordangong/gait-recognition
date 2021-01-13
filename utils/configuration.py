@@ -64,8 +64,8 @@ class ModelConfiguration(TypedDict):
     name: str
     restore_iter: int
     total_iter: int
-    restore_iters: tuple[int, ...]
-    total_iters: tuple[int, ...]
+    restore_iters: Tuple[int, ...]
+    total_iters: Tuple[int, ...]
 
 
 class Configuration(TypedDict):
