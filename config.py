@@ -11,7 +11,7 @@ config = {
     'dataset': {
         # Name of dataset (CASIA-B or FVG)
         'name': 'CASIA-B',
-        # Path to dataset root
+        # Path to dataset root (required)
         'root_dir': 'data/CASIA-B-MRCNN/SEG',
         # The number of subjects for training
         'train_size': 74,
@@ -86,9 +86,13 @@ config = {
     'model': {
         # Model name, used for naming checkpoint
         'name': 'RGB-GaitPart',
-        # Restoration iteration from checkpoint
-        'restore_iter': 0,
-        # Total iteration for training
-        'total_iter': 80000,
+        # Restoration iteration from checkpoint (single model)
+        # 'restore_iter': 0,
+        # Total iteration for training (single model)
+        # 'total_iter': 80000,
+        # Restoration iteration (multiple models, e.g. nm, bg and cl)
+        'restore_iters': (0, 0, 0),
+        # Total iteration for training (multiple models)
+        'total_iters': (80_000, 80_000, 80_000),
     },
 }
