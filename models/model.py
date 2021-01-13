@@ -82,7 +82,9 @@ class Model:
 
     @property
     def _model_sig(self) -> str:
-        return '_'.join((self._model_name, self.curr_iter, self.total_iter))
+        return '_'.join(
+            (self._model_name, str(self.curr_iter), str(self.total_iter))
+        )
 
     @property
     def _checkpoint_sig(self) -> str:
@@ -95,7 +97,7 @@ class Model:
 
     @property
     def _log_sig(self) -> str:
-        return '_'.join((self._model_name, self.total_iter, self._hp_sig,
+        return '_'.join((self._model_name, str(self.total_iter), self._hp_sig,
                          self._dataset_sig, str(self.pr), str(self.k)))
 
     @property

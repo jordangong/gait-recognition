@@ -95,6 +95,6 @@ config: Configuration = {
         # Restoration iteration (multiple models, e.g. nm, bg and cl)
         'restore_iters': (0, 0, 0),
         # Total iteration for training (multiple models)
-        'total_iter': (80_000, 80_000, 80_000),
+        'total_iters': (80_000, 80_000, 80_000),
     },
 }
