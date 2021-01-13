@@ -9,7 +9,7 @@ apt update
 apt -y install python3-pip python-is-python3 nvtop zstd rclone
 
 pip3 install torch==1.7.1+cu110 torchvision==0.8.2+cu110 torchaudio===0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
-pip3 install scikit-learn tqdm tensorborad
+pip3 install scikit-learn tqdm tensorboard
 
 git clone https://git.jordangong.com/jordangong/gait-recognition.git
 cd gait-recognition; git checkout python3.8; cd ..
