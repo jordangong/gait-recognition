@@ -1,0 +1,19 @@
+#!/bin/bash
+
+snap remove lxd
+snap remove core18
+apt -y purge snapd gdm3
+apt -y autoremove
+
+apt update
+apt -y install python3-pip python-is-python3 nvtop zstd rclone
+
+pip3 install torch==1.7.1+cu110 torchvision==0.8.2+cu110 torchaudio===0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
+pip3 install scikit-learn tqdm tensorborad
+
+git clone https://git.jordangong.com/jordangong/gait-recognition.git
+cd gait-recognition; git checkout python3.8; cd ..
+mkdir -p gait-recognition/data/CASIA-B-MRCNN
+wget https://storage.googleapis.com/gait-dataset/CASIA-B-MRCNN-SEG.tar.zst
+tar -I zstd -xf CASIA-B-MRCNN-SEG.tar.zst -C gait-recognition/data/CASIA-B-MRCNN
+mv gait-recognition/data/CASIA-B-MRCNN/{CASIA-B-MRCNN-SEG,SEG}
