@@ -16,7 +16,7 @@ pip3 install scikit-learn tqdm tensorboard
 cd /root
 
 git clone https://git.jordangong.com/jordangong/gait-recognition.git
-cd gait-recognition; git checkout python3.8; cd ..
+cd gait-recognition; git checkout python3.7; cd ..
 mkdir -p gait-recognition/data/CASIA-B-MRCNN
 wget https://storage.googleapis.com/gait-dataset/CASIA-B-MRCNN-SEG.tar.zst
 tar -I zstd -xf CASIA-B-MRCNN-SEG.tar.zst -C gait-recognition/data/CASIA-B-MRCNN
