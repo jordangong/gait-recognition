@@ -33,7 +33,7 @@ config: Configuration = {
         # Batch size (pr, k)
         # `pr` denotes number of persons
         # `k` denotes number of sequences per person
-        'batch_size': (8, 16),
+        'batch_size': (2, 2),
         # Number of workers of Dataloader
         'num_workers': 4,
         # Faster data transfer from RAM to GPU if enabled
@@ -69,13 +69,23 @@ config: Configuration = {
             'triplet_margin': 0.2,
         },
         'optimizer': {
+            # Global parameters
             # Initial learning rate of Adam Optimizer
             'lr': 1e-4,
             # Coefficients used for computing running averages of
             #   gradient and its square
-            'betas': (0.9, 0.999),
+            # 'betas': (0.9, 0.999),
+            # Term added to the denominator
+            # 'eps': 1e-8,
             # Weight decay (L2 penalty)
-            'weight_decay': 0.001,
+            # 'weight_decay': 0,
+            # Use AMSGrad or not
+            # 'amsgrad': False,
+
+            # Local parameters (override global ones)
+            'auto_encoder': {
+                'weight_decay': 0.001
+            },
         },
         'scheduler': {
             # Period of learning rate decay
