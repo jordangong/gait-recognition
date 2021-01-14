@@ -134,7 +134,7 @@ class Model:
         sched_hp = self.hp.get('scheduler', {})
         self.rgb_pn = RGBPartNet(self.train_size, self.in_channels, **model_hp)
         # Try to accelerate computation using CUDA or others
-        self.rgb_pn = self._accelerate(self.rgb_pn)
+        self.rgb_pn = self.rgb_pn.to(self.device)
         self.optimizer = optim.Adam(self.rgb_pn.parameters(), **optim_hp)
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, **sched_hp)
         self.writer = SummaryWriter(self._log_name)
@@ -193,13 +193,6 @@ class Model:
                 self.writer.close()
                 break
 
-    def _accelerate(self, model: nn.Module) -> nn.Module:
-        if not self.disable_acc:
-            if torch.cuda.device_count() > 1:
-                model = nn.DataParallel(model)
-            model = model.to(self.device)
-        return model
-
     def predict_all(
             self,
             iter_: int,
@@ -222,7 +215,7 @@ class Model:
         model_hp = self.hp.get('model', {})
         self.rgb_pn = RGBPartNet(ae_in_channels=self.in_channels, **model_hp)
         # Try to accelerate computation using CUDA or others
-        self.rgb_pn = self._accelerate(self.rgb_pn)
+        self.rgb_pn = self.rgb_pn.to(self.device)
 
         self.rgb_pn.eval()
         gallery_samples, probe_samples = [], {}
