@@ -164,6 +164,9 @@ class Model:
 
         # Training start
         start_time = datetime.now()
+        running_loss = torch.zeros(4).to(self.device)
+        print(f"{'Iter':^5} {'Loss':^6} {'Xrecon':^8} {'PoseSim':^8}",
+              f"{'CanoCons':^8} {'BATrip':^8} {'LR':^9}")
         for (batch_c1, batch_c2) in dataloader:
             self.curr_iter += 1
             # Zero the parameter gradients
@@ -172,24 +175,27 @@ class Model:
             x_c1 = batch_c1['clip'].to(self.device)
             x_c2 = batch_c2['clip'].to(self.device)
             y = batch_c1['label'].to(self.device)
-            loss, metrics = self.rgb_pn(x_c1, x_c2, y)
+            losses = self.rgb_pn(x_c1, x_c2, y)
+            loss = losses.sum()
             loss.backward()
             self.optimizer.step()
             # Step scheduler
             self.scheduler.step()
 
+            # Statistics and checkpoint
+            running_loss += losses.detach()
             # Write losses to TensorBoard
-            self.writer.add_scalar('Loss/all', loss.item(), self.curr_iter)
+            self.writer.add_scalar('Loss/all', loss, self.curr_iter)
             self.writer.add_scalars('Loss/details', dict(zip([
                 'Cross reconstruction loss', 'Pose similarity loss',
                 'Canonical consistency loss', 'Batch All triplet loss'
-            ], metrics)), self.curr_iter)
+            ], losses)), self.curr_iter)
 
             if self.curr_iter % 100 == 0:
-                print('{0:5d} loss: {1:6.3f}'.format(self.curr_iter, loss),
-                      '(xrecon = {:f}, pose_sim = {:f},'
-                      ' cano_cons = {:f}, ba_trip = {:f})'.format(*metrics),
-                      'lr:', self.scheduler.get_last_lr()[0])
+                print(f'{self.curr_iter:5d} {running_loss.sum() / 100:6.3f}',
+                      '{:f} {:f} {:f} {:f}'.format(*running_loss / 100),
+                      f'{self.scheduler.get_last_lr()[0]:.3e}')
+                running_loss.zero_()
 
             if self.curr_iter % 1000 == 0:
                 torch.save({

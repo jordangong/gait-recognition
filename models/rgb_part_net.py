@@ -80,9 +80,8 @@ class RGBPartNet(nn.Module):
 
         if self.training:
             batch_all_triplet_loss = self.ba_triplet_loss(x, y)
-            losses = (*losses, batch_all_triplet_loss)
-            loss = torch.sum(torch.stack(losses))
-            return loss, [loss.item() for loss in losses]
+            losses = torch.stack((*losses, batch_all_triplet_loss))
+            return losses
         else:
             return x.unsqueeze(1).view(-1)
 
