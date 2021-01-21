@@ -33,7 +33,7 @@ config: Configuration = {
         # Batch size (pr, k)
         # `pr` denotes number of persons
         # `k` denotes number of sequences per person
-        'batch_size': (2, 2),
+        'batch_size': (4, 8),
         # Number of workers of Dataloader
         'num_workers': 4,
         # Faster data transfer from RAM to GPU if enabled
