@@ -14,12 +14,12 @@ def test_default_signature():
     model._parse_dataloader_config(casiab, conf['dataloader'])
     assert model._log_name == os.path.join(
         'runs', 'logs', 'RGB-GaitPart_80000_64_128_128_64_1_2_4_True_True_32_5_'
-                        '3_3_3_3_3_2_1_1_1_1_1_0_2_3_4_16_256_0.2_0.0001_0.9_'
-                        '0.999_0.001_500_0.9_CASIA-B_74_30_15_3_64_32_8_16')
+                        '3_3_3_3_3_2_1_1_1_1_1_0_2_3_4_16_256_0.2_0.0001_0.001_'
+                        '500_0.9_CASIA-B_74_30_15_3_64_32_8_16')
     assert model._checkpoint_sig == ('RGB-GaitPart_0_80000_64_128_128_64_1_2_4_'
                                      'True_True_32_5_3_3_3_3_3_2_1_1_1_1_1_0_2_'
-                                     '3_4_16_256_0.2_0.0001_0.9_0.999_0.001_'
-                                     '500_0.9_CASIA-B_74_30_15_3_64_32_8_16')
+                                     '3_4_16_256_0.2_0.0001_0.001_500_0.9_'
+                                     'CASIA-B_74_30_15_3_64_32_8_16')
 
 
 def test_default_signature_with_selector():
@@ -31,11 +31,10 @@ def test_default_signature_with_selector():
     model._parse_dataloader_config(casiab, conf['dataloader'])
     assert model._log_name == os.path.join(
         'runs', 'logs', 'RGB-GaitPart_80000_64_128_128_64_1_2_4_True_True_32_5_'
-                        '3_3_3_3_3_2_1_1_1_1_1_0_2_3_4_16_256_0.2_0.0001_0.9_'
-                        '0.999_0.001_500_0.9_CASIA-B_74_30_15_3_64_32_bg-0\\d_'
-                        'nm-0\\d_8_16')
+                        '3_3_3_3_3_2_1_1_1_1_1_0_2_3_4_16_256_0.2_0.0001_0.001_'
+                        '500_0.9_CASIA-B_74_30_15_3_64_32_bg-0\\d_nm-0\\d_8_16')
     assert model._checkpoint_sig == ('RGB-GaitPart_0_80000_64_128_128_64_1_2_4_'
                                      'True_True_32_5_3_3_3_3_3_2_1_1_1_1_1_0_2_'
-                                     '3_4_16_256_0.2_0.0001_0.9_0.999_0.001_'
-                                     '500_0.9_CASIA-B_74_30_15_3_64_32_bg-0\\d_'
-                                     'nm-0\\d_8_16')
+                                     '3_4_16_256_0.2_0.0001_0.001_500_0.9_'
+                                     'CASIA-B_74_30_15_3_64_32_bg-0\\d_nm-0\\d_'
+                                     '8_16')
