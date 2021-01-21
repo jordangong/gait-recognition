@@ -133,7 +133,7 @@ class Model:
         dataloader = self._parse_dataloader_config(dataset, dataloader_config)
         # Prepare for model, optimizer and scheduler
         model_hp = self.hp.get('model', {})
-        optim_hp: dict = self.hp.get('optimizer', {}).copy()
+        optim_hp: Dict = self.hp.get('optimizer', {}).copy()
         ae_optim_hp = optim_hp.pop('auto_encoder', {})
         pn_optim_hp = optim_hp.pop('part_net', {})
         hpm_optim_hp = optim_hp.pop('hpm', {})
