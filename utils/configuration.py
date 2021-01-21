@@ -43,10 +43,24 @@ class ModelHPConfiguration(TypedDict):
     triplet_margin: float
 
 
+class SubOptimizerHPConfiguration(TypedDict):
+    lr: int
+    betas: Tuple[float, float]
+    eps: float
+    weight_decay: float
+    amsgrad: bool
+
+
 class OptimizerHPConfiguration(TypedDict):
     lr: int
     betas: Tuple[float, float]
+    eps: float
     weight_decay: float
+    amsgrad: bool
+    auto_encoder: SubOptimizerHPConfiguration
+    part_net: SubOptimizerHPConfiguration
+    hpm: SubOptimizerHPConfiguration
+    fc: SubOptimizerHPConfiguration
 
 
 class SchedulerHPConfiguration(TypedDict):
