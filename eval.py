@@ -14,7 +14,7 @@ dataset_selectors = {
     'cl': {'conditions': ClipConditions({r'nm-0\d', r'cl-0\d'})},
 }
 
-accuracy = model.predict_all(config['model']['total_iter'], config['dataset'],
+accuracy = model.predict_all(config['model']['total_iters'], config['dataset'],
                              dataset_selectors, config['dataloader'])
 rank = 5
 np.set_printoptions(formatter={'float': '{:5.2f}'.format})
