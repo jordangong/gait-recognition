@@ -201,6 +201,9 @@ class CASIAB(data.Dataset):
                 self._cached_clips[clip_name] = clip
             else:  # Load cache
                 cached_clip = self._cached_clips[clip_name]
+                # Return full clips while evaluating
+                if not self._is_train:
+                    return cached_clip
                 cached_clip_frame_names \
                     = self._cached_clips_frame_names[clip_path]
                 # Index the original clip via sampled frame names
