@@ -116,6 +116,13 @@ class Model:
                 self.curr_iters, self.total_iters, dataset_selectors.items()
         ):
             print(f'Training model {condition} ...')
+            # Skip finished model
+            if curr_iter == total_iter:
+                continue
+            # Check invalid restore iter
+            elif curr_iter > total_iter:
+                raise ValueError("Restore iter '{}' should less than total "
+                                 "iter '{}'".format(curr_iter, total_iter))
             self.curr_iter = curr_iter
             self.total_iter = total_iter
             self.fit(
