@@ -54,7 +54,6 @@ class Model:
         self.total_iters = self.meta.get('total_iters', (80000, 80000, 80000))
 
         self.is_train: bool = True
-        self.train_size: int = 74
         self.in_channels: int = 3
         self.pr: Optional[int] = None
         self.k: Optional[int] = None
@@ -147,7 +146,7 @@ class Model:
         hpm_optim_hp = optim_hp.pop('hpm', {})
         fc_optim_hp = optim_hp.pop('fc', {})
         sched_hp = self.hp.get('scheduler', {})
-        self.rgb_pn = RGBPartNet(self.train_size, self.in_channels, **model_hp)
+        self.rgb_pn = RGBPartNet(self.in_channels, **model_hp)
         # Try to accelerate computation using CUDA or others
         self.rgb_pn = self.rgb_pn.to(self.device)
         self.optimizer = optim.Adam([
@@ -409,7 +408,6 @@ class Model:
             self,
             dataset_config: DatasetConfiguration
     ) -> Union[CASIAB]:
-        self.train_size = dataset_config.get('train_size', 74)
         self.in_channels = dataset_config.get('num_input_channels', 3)
         self._dataset_sig = self._make_signature(
             dataset_config,

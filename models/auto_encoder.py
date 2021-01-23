@@ -113,7 +113,6 @@ class Decoder(nn.Module):
 class AutoEncoder(nn.Module):
     def __init__(
             self,
-            num_class: int = 74,
             channels: int = 3,
             feature_channels: int = 64,
             embedding_dims: tuple[int, int, int] = (128, 128, 64)
@@ -122,25 +121,23 @@ class AutoEncoder(nn.Module):
         self.encoder = Encoder(channels, feature_channels, embedding_dims)
         self.decoder = Decoder(embedding_dims, feature_channels, channels)
 
-        f_c_dim = embedding_dims[1]
-        self.classifier = nn.Sequential(
-            nn.LeakyReLU(0.2, inplace=True),
-            BasicLinear(f_c_dim, num_class)
-        )
-
-    def forward(self, x_c1_t2, x_c1_t1=None, x_c2_t2=None, y=None):
+    def forward(self, x_c1_t2, x_c1_t1=None, x_c2_t2=None):
         # x_c1_t2 is the frame for later module
         (f_a_c1_t2, f_c_c1_t2, f_p_c1_t2) = self.encoder(x_c1_t2)
 
         with torch.no_grad():
             # Decode canonical features for HPM
             x_c_c1_t2 = self.decoder(
-                torch.zeros_like(f_a_c1_t2), f_c_c1_t2, torch.zeros_like(f_p_c1_t2),
+                torch.zeros_like(f_a_c1_t2),
+                f_c_c1_t2,
+                torch.zeros_like(f_p_c1_t2),
                 no_trans_conv=True
             )
             # Decode pose features for Part Net
             x_p_c1_t2 = self.decoder(
-                torch.zeros_like(f_a_c1_t2), torch.zeros_like(f_c_c1_t2), f_p_c1_t2
+                torch.zeros_like(f_a_c1_t2),
+                torch.zeros_like(f_c_c1_t2),
+                f_p_c1_t2
             )
 
         if self.training:
@@ -150,11 +147,8 @@ class AutoEncoder(nn.Module):
 
             x_c1_t2_ = self.decoder(f_a_c1_t1, f_c_c1_t1, f_p_c1_t2)
             xrecon_loss_t2 = F.mse_loss(x_c1_t2, x_c1_t2_)
-
-            y_ = self.classifier(f_c_c1_t2.contiguous())
             cano_cons_loss_t2 = (F.mse_loss(f_c_c1_t1, f_c_c1_t2)
-                                 + F.mse_loss(f_c_c1_t2, f_c_c2_t2)
-                                 + F.cross_entropy(y_, y))
+                                 + F.mse_loss(f_c_c1_t2, f_c_c2_t2))
 
             return (
                 (x_c_c1_t2, x_p_c1_t2),
