@@ -141,6 +141,7 @@ class Model:
         # Prepare for model, optimizer and scheduler
         model_hp = self.hp.get('model', {})
         optim_hp: dict = self.hp.get('optimizer', {}).copy()
+        start_iter = optim_hp.pop('start_iter', 0)
         ae_optim_hp = optim_hp.pop('auto_encoder', {})
         pn_optim_hp = optim_hp.pop('part_net', {})
         hpm_optim_hp = optim_hp.pop('hpm', {})
@@ -151,9 +152,6 @@ class Model:
         self.rgb_pn = self.rgb_pn.to(self.device)
         self.optimizer = optim.Adam([
             {'params': self.rgb_pn.ae.parameters(), **ae_optim_hp},
-            {'params': self.rgb_pn.pn.parameters(), **pn_optim_hp},
-            {'params': self.rgb_pn.hpm.parameters(), **hpm_optim_hp},
-            {'params': self.rgb_pn.fc_mat, **fc_optim_hp},
         ], **optim_hp)
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, **sched_hp)
         self.writer = SummaryWriter(self._log_name)
@@ -173,8 +171,18 @@ class Model:
         start_time = datetime.now()
         running_loss = torch.zeros(4).to(self.device)
         print(f"{'Iter':^5} {'Loss':^6} {'Xrecon':^8} {'PoseSim':^8}",
-              f"{'CanoCons':^8} {'BATrip':^8} {'LR':^9}")
+              f"{'CanoCons':^8} {'BATrip':^8} LR(s)")
         for (batch_c1, batch_c2) in dataloader:
+            if self.curr_iter == start_iter:
+                self.optimizer.add_param_group(
+                    {'params': self.rgb_pn.pn.parameters(), **pn_optim_hp}
+                )
+                self.optimizer.add_param_group(
+                    {'params': self.rgb_pn.hpm.parameters(), **hpm_optim_hp}
+                )
+                self.optimizer.add_param_group(
+                    {'params': self.rgb_pn.fc_mat, **fc_optim_hp}
+                )
             self.curr_iter += 1
             # Zero the parameter gradients
             self.optimizer.zero_grad()
@@ -186,8 +194,6 @@ class Model:
             loss = losses.sum()
             loss.backward()
             self.optimizer.step()
-            # Step scheduler
-            self.scheduler.step()
 
             # Statistics and checkpoint
             running_loss += losses.detach()
@@ -199,10 +205,14 @@ class Model:
             ], losses)), self.curr_iter)
 
             if self.curr_iter % 100 == 0:
+                lrs = self.scheduler.get_last_lr()
                 print(f'{self.curr_iter:5d} {running_loss.sum() / 100:6.3f}',
                       '{:f} {:f} {:f} {:f}'.format(*running_loss / 100),
-                      f'{self.scheduler.get_last_lr()[0]:.3e}')
+                      ' '.join(('{:.3e}'.format(lr) for lr in lrs)))
                 running_loss.zero_()
+
+            # Step scheduler
+            self.scheduler.step()
 
             if self.curr_iter % 1000 == 0:
                 torch.save({

@@ -52,6 +52,7 @@ class SubOptimizerHPConfiguration(TypedDict):
 
 
 class OptimizerHPConfiguration(TypedDict):
+    start_iter: int
     lr: int
     betas: tuple[float, float]
     eps: float

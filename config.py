@@ -70,6 +70,8 @@ config: Configuration = {
         },
         'optimizer': {
             # Global parameters
+            # Iteration start to optimize non-disentangling parts
+            # 'start_iter': 10,
             # Initial learning rate of Adam Optimizer
             'lr': 1e-4,
             # Coefficients used for computing running averages of
