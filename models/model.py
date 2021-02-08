@@ -69,6 +69,7 @@ class Model:
         self.optimizer: Optional[optim.Adam] = None
         self.scheduler: Optional[optim.lr_scheduler.StepLR] = None
         self.writer: Optional[SummaryWriter] = None
+        self.image_log_on = system_config.get('image_log_on', False)
 
         self.CASIAB_GALLERY_SELECTOR = {
             'selector': {'conditions': ClipConditions({r'nm-0[1-4]'})}
@@ -146,7 +147,8 @@ class Model:
         hpm_optim_hp = optim_hp.pop('hpm', {})
         fc_optim_hp = optim_hp.pop('fc', {})
         sched_hp = self.hp.get('scheduler', {})
-        self.rgb_pn = RGBPartNet(self.in_channels, **model_hp)
+        self.rgb_pn = RGBPartNet(self.in_channels, **model_hp,
+                                 image_log_on=self.image_log_on)
         # Try to accelerate computation using CUDA or others
         self.rgb_pn = self.rgb_pn.to(self.device)
         self.optimizer = optim.Adam([
@@ -168,9 +170,9 @@ class Model:
 
         # Training start
         start_time = datetime.now()
-        running_loss = torch.zeros(4).to(self.device)
+        running_loss = torch.zeros(5, device=self.device)
         print(f"{'Iter':^5} {'Loss':^6} {'Xrecon':^8} {'PoseSim':^8}",
-              f"{'CanoCons':^8} {'BATrip':^8} LR(s)")
+              f"{'CanoCons':^8} {'BATripH':^8} {'BATripP':^8} LR(s)")
         for (batch_c1, batch_c2) in dataloader:
             if self.curr_iter == start_iter:
                 self.optimizer.add_param_group(
@@ -189,7 +191,7 @@ class Model:
             x_c1 = batch_c1['clip'].to(self.device)
             x_c2 = batch_c2['clip'].to(self.device)
             y = batch_c1['label'].to(self.device)
-            losses = self.rgb_pn(x_c1, x_c2, y)
+            losses, images = self.rgb_pn(x_c1, x_c2, y)
             loss = losses.sum()
             loss.backward()
             self.optimizer.step()
@@ -200,13 +202,33 @@ class Model:
             self.writer.add_scalar('Loss/all', loss, self.curr_iter)
             self.writer.add_scalars('Loss/details', dict(zip([
                 'Cross reconstruction loss', 'Pose similarity loss',
-                'Canonical consistency loss', 'Batch All triplet loss'
+                'Canonical consistency loss', 'Batch All triplet loss (HPM)',
+                'Batch All triplet loss (PartNet)'
             ], losses)), self.curr_iter)
+            if self.image_log_on:
+                (appearance_image, canonical_image, pose_image) = images
+                self.writer.add_images(
+                    'Canonical image', canonical_image, self.curr_iter
+                )
+                for i in range(self.pr * self.k):
+                    self.writer.add_images(
+                        f'Original image/batch {i}', x_c1[i], self.curr_iter
+                    )
+                    self.writer.add_images(
+                        f'Appearance image/batch {i}',
+                        appearance_image[:, i, :, :, :],
+                        self.curr_iter
+                    )
+                    self.writer.add_images(
+                        f'Pose image/batch {i}',
+                        pose_image[:, i, :, :, :],
+                        self.curr_iter
+                    )
 
             if self.curr_iter % 100 == 0:
                 lrs = self.scheduler.get_last_lr()
                 print(f'{self.curr_iter:5d} {running_loss.sum() / 100:6.3f}',
-                      '{:f} {:f} {:f} {:f}'.format(*running_loss / 100),
+                      '{:f} {:f} {:f} {:f} {:f}'.format(*running_loss / 100),
                       ' '.join(('{:.3e}'.format(lr) for lr in lrs)))
                 running_loss.zero_()
 

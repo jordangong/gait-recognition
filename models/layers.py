@@ -167,12 +167,13 @@ class HorizontalPyramidPooling(BasicConv2d):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, tuple[int, int]] = 1,
+            use_1x1conv: bool = False,
             use_avg_pool: bool = True,
-            use_max_pool: bool = True,
+            use_max_pool: bool = False,
             **kwargs
     ):
-        super().__init__(in_channels, out_channels, kernel_size, **kwargs)
+        super().__init__(in_channels, out_channels, kernel_size=1, **kwargs)
+        self.use_1x1conv = use_1x1conv
         self.use_avg_pool = use_avg_pool
         self.use_max_pool = use_max_pool
         assert use_avg_pool or use_max_pool, 'Pooling layer(s) required.'
@@ -186,5 +187,6 @@ class HorizontalPyramidPooling(BasicConv2d):
             x = self.avg_pool(x)
         elif not self.use_avg_pool and self.use_max_pool:
             x = self.max_pool(x)
-        x = super().forward(x)
+        if self.use_1x1conv:
+            x = super().forward(x)
         return x

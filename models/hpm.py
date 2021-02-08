@@ -9,14 +9,16 @@ class HorizontalPyramidMatching(nn.Module):
             self,
             in_channels: int,
             out_channels: int = 128,
+            use_1x1conv: bool = False,
             scales: tuple[int, ...] = (1, 2, 4),
             use_avg_pool: bool = True,
-            use_max_pool: bool = True,
+            use_max_pool: bool = False,
             **kwargs
     ):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
+        self.use_1x1conv = use_1x1conv
         self.scales = scales
         self.use_avg_pool = use_avg_pool
         self.use_max_pool = use_max_pool
@@ -29,6 +31,7 @@ class HorizontalPyramidMatching(nn.Module):
         pyramid = nn.ModuleList([
             HorizontalPyramidPooling(self.in_channels,
                                      self.out_channels,
+                                     use_1x1conv=self.use_1x1conv,
                                      use_avg_pool=self.use_avg_pool,
                                      use_max_pool=self.use_max_pool,
                                      **kwargs)
@@ -37,23 +40,16 @@ class HorizontalPyramidMatching(nn.Module):
         return pyramid
 
     def forward(self, x):
-        # Flatten canonical features in all batches
-        t, n, c, h, w = x.size()
-        x = x.view(t * n, c, h, w)
-
+        n, c, h, w = x.size()
         feature = []
-        for pyramid_index, pyramid in enumerate(self.pyramids):
-            h_per_hpp = h // self.scales[pyramid_index]
+        for scale, pyramid in zip(self.scales, self.pyramids):
+            h_per_hpp = h // scale
             for hpp_index, hpp in enumerate(pyramid):
                 h_filter = torch.arange(hpp_index * h_per_hpp,
                                         (hpp_index + 1) * h_per_hpp)
                 x_slice = x[:, :, h_filter, :]
                 x_slice = hpp(x_slice)
-                x_slice = x_slice.view(t * n, -1)
+                x_slice = x_slice.view(n, -1)
                 feature.append(x_slice)
         x = torch.stack(feature)
-
-        # Unfold frames to original batch
-        p, _, c = x.size()
-        x = x.view(p, t, n, c)
         return x

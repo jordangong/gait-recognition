@@ -8,6 +8,8 @@ config: Configuration = {
         'CUDA_VISIBLE_DEVICES': '0',
         # Directory used in training or testing for temporary storage
         'save_dir': 'runs',
+        # Recorde disentangled image or not
+        'image_log_on': False
     },
     # Dataset settings
     'dataset': {
@@ -46,11 +48,13 @@ config: Configuration = {
             'ae_feature_channels': 64,
             # Appearance, canonical and pose feature dimensions
             'f_a_c_p_dims': (128, 128, 64),
+            # Use 1x1 convolution in dimensionality reduction
+            'hpm_use_1x1conv': False,
             # HPM pyramid scales, of which sum is number of parts
             'hpm_scales': (1, 2, 4),
             # Global pooling method
             'hpm_use_avg_pool': True,
-            'hpm_use_max_pool': True,
+            'hpm_use_max_pool': False,
             # FConv feature channels coefficient
             'fpfe_feature_channels': 32,
             # FConv blocks kernel sizes
@@ -65,13 +69,13 @@ config: Configuration = {
             'tfa_num_parts': 16,
             # Embedding dimension for each part
             'embedding_dims': 256,
-            # Triplet loss margin
-            'triplet_margin': 0.2,
+            # Triplet loss margins for HPM and PartNet
+            'triplet_margins': (0.2, 0.2),
         },
         'optimizer': {
             # Global parameters
             # Iteration start to optimize non-disentangling parts
-            # 'start_iter': 10,
+            # 'start_iter': 0,
             # Initial learning rate of Adam Optimizer
             'lr': 1e-4,
             # Coefficients used for computing running averages of
