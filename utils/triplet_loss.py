@@ -34,5 +34,5 @@ class BatchAllTripletLoss(nn.Module):
         parted_loss_mean = all_loss.sum(1) / non_zero_counts
         parted_loss_mean[non_zero_counts == 0] = 0
 
-        loss = parted_loss_mean.sum()
+        loss = parted_loss_mean.mean()
         return loss

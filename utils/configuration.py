@@ -7,6 +7,7 @@ class SystemConfiguration(TypedDict):
     disable_acc: bool
     CUDA_VISIBLE_DEVICES: str
     save_dir: str
+    image_log_on: bool
 
 
 class DatasetConfiguration(TypedDict):
@@ -31,6 +32,7 @@ class ModelHPConfiguration(TypedDict):
     ae_feature_channels: int
     f_a_c_p_dims: Tuple[int, int, int]
     hpm_scales: Tuple[int, ...]
+    hpm_use_1x1conv: bool
     hpm_use_avg_pool: bool
     hpm_use_max_pool: bool
     fpfe_feature_channels: int
@@ -40,7 +42,7 @@ class ModelHPConfiguration(TypedDict):
     tfa_squeeze_ratio: int
     tfa_num_parts: int
     embedding_dims: int
-    triplet_margin: float
+    triplet_margins: Tuple[float, float]
 
 
 class SubOptimizerHPConfiguration(TypedDict):
@@ -52,6 +54,7 @@ class SubOptimizerHPConfiguration(TypedDict):
 
 
 class OptimizerHPConfiguration(TypedDict):
+    start_iter: int
     lr: int
     betas: Tuple[float, float]
     eps: float
