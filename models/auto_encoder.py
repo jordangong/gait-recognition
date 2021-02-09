@@ -121,23 +121,42 @@ class AutoEncoder(nn.Module):
         self.decoder = Decoder(embedding_dims, feature_channels, channels)
 
     def forward(self, x_c1_t2, x_c1_t1=None, x_c2_t2=None):
+        n, t, c, h, w = x_c1_t2.size()
         # x_c1_t2 is the frame for later module
-        (f_a_c1_t2, f_c_c1_t2, f_p_c1_t2) = self.encoder(x_c1_t2)
+        x_c1_t2_ = x_c1_t2.view(n * t, c, h, w)
+        (f_a_c1_t2_, f_c_c1_t2_, f_p_c1_t2_) = self.encoder(x_c1_t2_)
 
         if self.training:
             # t1 is random time step, c2 is another condition
-            (f_a_c1_t1, f_c_c1_t1, _) = self.encoder(x_c1_t1)
-            (_, f_c_c2_t2, f_p_c2_t2) = self.encoder(x_c2_t2)
+            x_c1_t1 = x_c1_t1.view(n * t, c, h, w)
+            (f_a_c1_t1_, f_c_c1_t1_, _) = self.encoder(x_c1_t1)
+            x_c2_t2 = x_c2_t2.view(n * t, c, h, w)
+            (_, f_c_c2_t2_, f_p_c2_t2_) = self.encoder(x_c2_t2)
 
-            x_c1_t2_ = self.decoder(f_a_c1_t1, f_c_c1_t1, f_p_c1_t2)
-            xrecon_loss_t2 = F.mse_loss(x_c1_t2, x_c1_t2_)
-            cano_cons_loss_t2 = (F.mse_loss(f_c_c1_t1, f_c_c1_t2)
-                                 + F.mse_loss(f_c_c1_t2, f_c_c2_t2))
+            x_c1_t2_pred_ = self.decoder(f_a_c1_t1_, f_c_c1_t1_, f_p_c1_t2_)
+            x_c1_t2_pred = x_c1_t2_pred_.view(n, t, c, h, w)
+
+            xrecon_loss = torch.stack([
+                F.mse_loss(x_c1_t2[:, i, :, :, :], x_c1_t2_pred[:, i, :, :, :])
+                for i in range(t)
+            ]).sum()
+
+            f_c_c1_t1 = f_c_c1_t1_.view(n, t, -1)
+            f_c_c1_t2 = f_c_c1_t2_.view(n, t, -1)
+            f_c_c2_t2 = f_c_c2_t2_.view(n, t, -1)
+            cano_cons_loss = torch.stack([
+                F.mse_loss(f_c_c1_t1[:, i, :], f_c_c1_t2[:, i, :])
+                + F.mse_loss(f_c_c1_t2[:, i, :], f_c_c2_t2[:, i, :])
+                for i in range(t)
+            ]).mean()
+
+            f_p_c1_t2 = f_p_c1_t2_.view(n, t, -1)
+            f_p_c2_t2 = f_p_c2_t2_.view(n, t, -1)
+            pose_sim_loss = F.mse_loss(f_p_c1_t2.mean(1), f_p_c2_t2.mean(1))
 
             return (
-                (f_a_c1_t2, f_c_c1_t2, f_p_c1_t2),
-                (f_p_c1_t2, f_p_c2_t2),
-                (xrecon_loss_t2, cano_cons_loss_t2)
+                (f_a_c1_t2_, f_c_c1_t2_, f_p_c1_t2_),
+                (xrecon_loss, cano_cons_loss, pose_sim_loss * 10)
             )
         else:  # evaluating
-            return f_c_c1_t2, f_p_c1_t2
+            return f_c_c1_t2_, f_p_c1_t2_
