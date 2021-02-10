@@ -174,6 +174,7 @@ class Model:
             print('{0:5d} loss: {1:.3f}'.format(iter_, loss))
             self.rgb_pn.load_state_dict(checkpoint['model_state_dict'])
             self.optimizer.load_state_dict(checkpoint['optim_state_dict'])
+            self.scheduler.load_state_dict(checkpoint['sched_state_dict'])
 
         # Training start
         start_time = datetime.now()
@@ -246,6 +247,7 @@ class Model:
                     'iter': self.curr_iter,
                     'model_state_dict': self.rgb_pn.state_dict(),
                     'optim_state_dict': self.optimizer.state_dict(),
+                    'sched_state_dict': self.scheduler.state_dict(),
                     'loss': loss,
                 }, self._checkpoint_name)
 

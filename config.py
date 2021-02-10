@@ -19,6 +19,8 @@ config = {
         'train_size': 74,
         # Number of sampled frames per sequence (Training only)
         'num_sampled_frames': 30,
+        # Truncate clips longer than `truncate_threshold`
+        'truncate_threshold': 40,
         # Discard clips shorter than `discard_threshold`
         'discard_threshold': 15,
         # Number of input channels of model
