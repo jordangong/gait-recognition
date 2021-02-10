@@ -15,6 +15,7 @@ class DatasetConfiguration(TypedDict):
     root_dir: str
     train_size: int
     num_sampled_frames: int
+    truncate_threshold: int
     discard_threshold: int
     selector: Optional[dict[str, Union[ClipClasses, ClipConditions, ClipViews]]]
     num_input_channels: int
