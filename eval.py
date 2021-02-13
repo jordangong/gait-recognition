@@ -22,7 +22,7 @@ for n in range(rank):
     print(f'===Rank-{n + 1} Accuracy===')
     for (condition, accuracy_c) in accuracy.items():
         acc_excl_identical_view = accuracy_c[:, :, n].fill_diagonal_(0)
-        num_gallery_views = (acc_excl_identical_view != 0).sum()
+        num_gallery_views = (acc_excl_identical_view != 0).sum(0)
         acc_each_angle = acc_excl_identical_view.sum(0) / num_gallery_views
         print('{0}: {1} mean: {2:5.2f}'.format(
             condition, acc_each_angle.cpu().numpy() * 100,
