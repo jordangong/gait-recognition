@@ -56,64 +56,67 @@ class RGBPartNet(nn.Module):
     def fc(self, x):
         return x @ self.fc_mat
 
-    def forward(self, x_c1, x_c2=None, y=None):
-        # Step 1: Disentanglement
-        # n, t, c, h, w
-        ((x_c, x_p), losses, images) = self._disentangle(x_c1, x_c2)
+    def forward(self, x, y=None, is_c1=True):
+        # Step 1a: Disentangle condition 1 clips
+        if is_c1:
+            # n, t, c, h, w
+            ((x_c, x_p), xrecon_loss, images) = self._disentangle(x, is_c1)
 
-        # Step 2.a: Static Gait Feature Aggregation & HPM
-        # n, c, h, w
-        x_c = self.hpm(x_c)
-        # p, n, c
+            # Step 2.a: Static Gait Feature Aggregation & HPM
+            # n, c, h, w
+            x_c = self.hpm(x_c)
+            # p, n, c
 
-        # Step 2.b: FPFE & TFA (Dynamic Gait Feature Aggregation)
-        # n, t, c, h, w
-        x_p = self.pn(x_p)
-        # p, n, c
+            # Step 2.b: FPFE & TFA (Dynamic Gait Feature Aggregation)
+            # n, t, c, h, w
+            x_p = self.pn(x_p)
+            # p, n, c
 
-        # Step 3: Cat feature map together and fc
-        x = torch.cat((x_c, x_p))
-        x = self.fc(x)
+            # Step 3: Cat feature map together and fc
+            x = torch.cat((x_c, x_p))
+            x = self.fc(x)
 
-        if self.training:
-            y = y.T
-            hpm_ba_trip = self.hpm_ba_trip(
-                x[:self.hpm_num_parts], y[:self.hpm_num_parts]
-            )
-            pn_ba_trip = self.pn_ba_trip(
-                x[self.hpm_num_parts:], y[self.hpm_num_parts:]
-            )
-            losses = torch.stack((*losses, hpm_ba_trip, pn_ba_trip))
-            return losses, images
-        else:
-            return x.unsqueeze(1).view(-1)
+            if self.training:
+                y = y.T
+                hpm_ba_trip = self.hpm_ba_trip(
+                    x[:self.hpm_num_parts], y[:self.hpm_num_parts]
+                )
+                pn_ba_trip = self.pn_ba_trip(
+                    x[self.hpm_num_parts:], y[self.hpm_num_parts:]
+                )
+                return (xrecon_loss, hpm_ba_trip, pn_ba_trip), images
+            else:  # evaluating
+                return x.unsqueeze(1).view(-1)
+        else:  # Step 1b: Disentangle condition 2 clips
+            return self._disentangle(x, is_c1)
 
-    def _disentangle(self, x_c1_t2, x_c2_t2=None):
-        n, t, c, h, w = x_c1_t2.size()
-        device = x_c1_t2.device
-        x_c1_t1 = x_c1_t2[:, torch.randperm(t), :, :, :]
-        if self.training:
-            ((f_a_, f_c_, f_p_), losses) = self.ae(x_c1_t2, x_c1_t1, x_c2_t2)
-            # Decode features
-            with torch.no_grad():
+    def _disentangle(self, x_t2, is_c1=True):
+        if is_c1:  # condition 1
+            n, t, *_ = x_size = x_t2.size()
+            device = x_t2.device
+            if self.training:
+                (f_a_, f_c_, f_p_), xrecon_loss = self.ae(x_t2, is_c1)
+                # Decode features
+                with torch.no_grad():
+                    x_c = self._decode_cano_feature(f_c_, n, t, device)
+                    x_p = self._decode_pose_feature(f_p_, *x_size, device)
+
+                    i_a, i_c, i_p = None, None, None
+                    if self.image_log_on:
+                        i_a = self._decode_appr_feature(f_a_, *x_size, device)
+                        # Continue decoding canonical features
+                        i_c = self.ae.decoder.trans_conv3(x_c)
+                        i_c = torch.sigmoid(self.ae.decoder.trans_conv4(i_c))
+                        i_p = x_p
+
+                return (x_c, x_p), xrecon_loss, (i_a, i_c, i_p)
+            else:  # evaluating
+                f_c_, f_p_ = self.ae(x_t2)
                 x_c = self._decode_cano_feature(f_c_, n, t, device)
-                x_p = self._decode_pose_feature(f_p_, n, t, c, h, w, device)
-
-                i_a, i_c, i_p = None, None, None
-                if self.image_log_on:
-                    i_a = self._decode_appr_feature(f_a_, n, t, c, h, w, device)
-                    # Continue decoding canonical features
-                    i_c = self.ae.decoder.trans_conv3(x_c)
-                    i_c = torch.sigmoid(self.ae.decoder.trans_conv4(i_c))
-                    i_p = x_p
-
-            return (x_c, x_p), losses, (i_a, i_c, i_p)
-
-        else:  # evaluating
-            f_c_, f_p_ = self.ae(x_c1_t2)
-            x_c = self._decode_cano_feature(f_c_, n, t, device)
-            x_p = self._decode_pose_feature(f_p_, n, t, c, h, w, device)
-            return (x_c, x_p), None, None
+                x_p = self._decode_pose_feature(f_p_, *x_size, device)
+                return (x_c, x_p), None, None
+        else:  # condition 2
+            return self.ae(x_t2, is_c1)
 
     def _decode_appr_feature(self, f_a_, n, t, c, h, w, device):
         # Decode appearance features
