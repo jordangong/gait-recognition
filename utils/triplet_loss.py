@@ -9,9 +9,7 @@ class BatchAllTripletLoss(nn.Module):
         self.margin = margin
 
     def forward(self, x, y):
-        # Duplicate labels for each part
         p, n, c = x.size()
-        y = y.repeat(p, 1)
 
         # Euclidean distance p x n x n
         x_squared_sum = torch.sum(x ** 2, dim=2)
