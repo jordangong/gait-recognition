@@ -193,6 +193,8 @@ class Model:
             x_c1 = batch_c1['clip'].to(self.device)
             x_c2 = batch_c2['clip'].to(self.device)
             y = batch_c1['label'].to(self.device)
+            # Duplicate labels for each part
+            y = y.unsqueeze(1).repeat(1, self.rgb_pn.num_total_parts)
             losses, images = self.rgb_pn(x_c1, x_c2, y)
             loss = losses.sum()
             loss.backward()

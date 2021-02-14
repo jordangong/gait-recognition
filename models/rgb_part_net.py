@@ -44,7 +44,8 @@ class RGBPartNet(nn.Module):
             ae_feature_channels * 2, out_channels, hpm_use_1x1conv,
             hpm_scales, hpm_use_avg_pool, hpm_use_max_pool
         )
-        empty_fc = torch.empty(self.hpm_num_parts + tfa_num_parts,
+        self.num_total_parts = self.hpm_num_parts + tfa_num_parts
+        empty_fc = torch.empty(self.num_total_parts,
                                out_channels, embedding_dims)
         self.fc_mat = nn.Parameter(empty_fc)
 
@@ -75,8 +76,13 @@ class RGBPartNet(nn.Module):
         x = self.fc(x)
 
         if self.training:
-            hpm_ba_trip = self.hpm_ba_trip(x[:self.hpm_num_parts], y)
-            pn_ba_trip = self.pn_ba_trip(x[self.hpm_num_parts:], y)
+            y = y.T
+            hpm_ba_trip = self.hpm_ba_trip(
+                x[:self.hpm_num_parts], y[:self.hpm_num_parts]
+            )
+            pn_ba_trip = self.pn_ba_trip(
+                x[self.hpm_num_parts:], y[self.hpm_num_parts:]
+            )
             losses = torch.stack((*losses, hpm_ba_trip, pn_ba_trip))
             return losses, images
         else:
