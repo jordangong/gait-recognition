@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import torch
 import torch.nn as nn
 
@@ -10,7 +12,7 @@ class HorizontalPyramidMatching(nn.Module):
             in_channels: int,
             out_channels: int = 128,
             use_1x1conv: bool = False,
-            scales: tuple[int, ...] = (1, 2, 4),
+            scales: Tuple[int, ...] = (1, 2, 4),
             use_avg_pool: bool = True,
             use_max_pool: bool = False,
             **kwargs

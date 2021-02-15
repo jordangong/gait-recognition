@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional, Union
+from typing import TypedDict, Optional, Union, Tuple, Dict
 
 from utils.dataset import ClipClasses, ClipConditions, ClipViews
 
@@ -17,38 +17,38 @@ class DatasetConfiguration(TypedDict):
     num_sampled_frames: int
     truncate_threshold: int
     discard_threshold: int
-    selector: Optional[dict[str, Union[ClipClasses, ClipConditions, ClipViews]]]
+    selector: Optional[Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]]
     num_input_channels: int
-    frame_size: tuple[int, int]
+    frame_size: Tuple[int, int]
     cache_on: bool
 
 
 class DataloaderConfiguration(TypedDict):
-    batch_size: tuple[int, int]
+    batch_size: Tuple[int, int]
     num_workers: int
     pin_memory: bool
 
 
 class ModelHPConfiguration(TypedDict):
     ae_feature_channels: int
-    f_a_c_p_dims: tuple[int, int, int]
-    hpm_scales: tuple[int, ...]
+    f_a_c_p_dims: Tuple[int, int, int]
+    hpm_scales: Tuple[int, ...]
     hpm_use_1x1conv: bool
     hpm_use_avg_pool: bool
     hpm_use_max_pool: bool
     fpfe_feature_channels: int
-    fpfe_kernel_sizes: tuple[tuple, ...]
-    fpfe_paddings: tuple[tuple, ...]
-    fpfe_halving: tuple[int, ...]
+    fpfe_kernel_sizes: Tuple[Tuple, ...]
+    fpfe_paddings: Tuple[Tuple, ...]
+    fpfe_halving: Tuple[int, ...]
     tfa_squeeze_ratio: int
     tfa_num_parts: int
     embedding_dims: int
-    triplet_margins: tuple[float, float]
+    triplet_margins: Tuple[float, float]
 
 
 class SubOptimizerHPConfiguration(TypedDict):
     lr: int
-    betas: tuple[float, float]
+    betas: Tuple[float, float]
     eps: float
     weight_decay: float
     amsgrad: bool
@@ -57,7 +57,7 @@ class SubOptimizerHPConfiguration(TypedDict):
 class OptimizerHPConfiguration(TypedDict):
     start_iter: int
     lr: int
-    betas: tuple[float, float]
+    betas: Tuple[float, float]
     eps: float
     weight_decay: float
     amsgrad: bool
@@ -82,8 +82,8 @@ class ModelConfiguration(TypedDict):
     name: str
     restore_iter: int
     total_iter: int
-    restore_iters: tuple[int, ...]
-    total_iters: tuple[int, ...]
+    restore_iters: Tuple[int, ...]
+    total_iters: Tuple[int, ...]
 
 
 class Configuration(TypedDict):

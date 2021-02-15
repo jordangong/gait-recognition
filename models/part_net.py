@@ -1,4 +1,5 @@
 import copy
+from typing import Tuple
 
 import torch
 import torch.nn as nn
@@ -12,9 +13,9 @@ class FrameLevelPartFeatureExtractor(nn.Module):
             self,
             in_channels: int = 3,
             feature_channels: int = 32,
-            kernel_sizes: tuple[tuple, ...] = ((5, 3), (3, 3), (3, 3)),
-            paddings: tuple[tuple, ...] = ((2, 1), (1, 1), (1, 1)),
-            halving: tuple[int, ...] = (0, 2, 3)
+            kernel_sizes: Tuple[Tuple, ...] = ((5, 3), (3, 3), (3, 3)),
+            paddings: Tuple[Tuple, ...] = ((2, 1), (1, 1), (1, 1)),
+            halving: Tuple[int, ...] = (0, 2, 3)
     ):
         super().__init__()
         num_blocks = len(kernel_sizes)
@@ -112,9 +113,9 @@ class PartNet(nn.Module):
             self,
             in_channels: int = 3,
             feature_channels: int = 32,
-            kernel_sizes: tuple[tuple, ...] = ((5, 3), (3, 3), (3, 3)),
-            paddings: tuple[tuple, ...] = ((2, 1), (1, 1), (1, 1)),
-            halving: tuple[int, ...] = (0, 2, 3),
+            kernel_sizes: Tuple[Tuple, ...] = ((5, 3), (3, 3), (3, 3)),
+            paddings: Tuple[Tuple, ...] = ((2, 1), (1, 1), (1, 1)),
+            halving: Tuple[int, ...] = (0, 2, 3),
             squeeze_ratio: int = 4,
             num_part: int = 16
     ):

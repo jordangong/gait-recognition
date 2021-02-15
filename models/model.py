@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import Union, Optional
+from typing import Union, Optional, Tuple, List, Dict, Set
 
 import numpy as np
 import torch
@@ -58,8 +58,8 @@ class Model:
         self.pr: Optional[int] = None
         self.k: Optional[int] = None
 
-        self._gallery_dataset_meta: Optional[dict[str, list]] = None
-        self._probe_datasets_meta: Optional[dict[str, dict[str, list]]] = None
+        self._gallery_dataset_meta: Optional[Dict[str, List]] = None
+        self._probe_datasets_meta: Optional[Dict[str, Dict[str, List]]] = None
 
         self._model_name: str = self.meta.get('name', 'RGB-GaitPart')
         self._hp_sig: str = self._make_signature(self.hp)
@@ -107,8 +107,8 @@ class Model:
     def fit_all(
             self,
             dataset_config: DatasetConfiguration,
-            dataset_selectors: dict[
-                str, dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
+            dataset_selectors: Dict[
+                str, Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
             ],
             dataloader_config: DataloaderConfiguration,
     ):
@@ -140,7 +140,7 @@ class Model:
         dataloader = self._parse_dataloader_config(dataset, dataloader_config)
         # Prepare for model, optimizer and scheduler
         model_hp = self.hp.get('model', {})
-        optim_hp: dict = self.hp.get('optimizer', {}).copy()
+        optim_hp: Dict = self.hp.get('optimizer', {}).copy()
         start_iter = optim_hp.pop('start_iter', 0)
         ae_optim_hp = optim_hp.pop('auto_encoder', {})
         pn_optim_hp = optim_hp.pop('part_net', {})
@@ -269,13 +269,13 @@ class Model:
 
     def predict_all(
             self,
-            iters: tuple[int],
+            iters: Tuple[int],
             dataset_config: DatasetConfiguration,
-            dataset_selectors: dict[
-                str, dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
+            dataset_selectors: Dict[
+                str, Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
             ],
             dataloader_config: DataloaderConfiguration,
-    ) -> dict[str, torch.Tensor]:
+    ) -> Dict[str, torch.Tensor]:
         self.is_train = False
         # Split gallery and probe dataset
         gallery_dataloader, probe_dataloaders = self._split_gallery_probe(
@@ -315,7 +315,7 @@ class Model:
 
         return self._evaluate(gallery_samples, probe_samples)
 
-    def _get_eval_sample(self, sample: dict[str, Union[list, torch.Tensor]]):
+    def _get_eval_sample(self, sample: Dict[str, Union[List, torch.Tensor]]):
         label = sample.pop('label').item()
         clip = sample.pop('clip').to(self.device)
         feature = self.rgb_pn(clip).detach()
@@ -327,10 +327,10 @@ class Model:
 
     def _evaluate(
             self,
-            gallery_samples: dict[str, Union[list[str], torch.Tensor]],
-            probe_samples: dict[str, dict[str, Union[list[str], torch.Tensor]]],
+            gallery_samples: Dict[str, Union[List[str], torch.Tensor]],
+            probe_samples: Dict[str, Dict[str, Union[List[str], torch.Tensor]]],
             num_ranks: int = 5
-    ) -> dict[str, torch.Tensor]:
+    ) -> Dict[str, torch.Tensor]:
         probe_conditions = self._probe_datasets_meta.keys()
         gallery_views_meta = self._gallery_dataset_meta['views']
         probe_views_meta = list(self._probe_datasets_meta.values())[0]['views']
@@ -375,12 +375,12 @@ class Model:
 
     def _load_pretrained(
             self,
-            iters: tuple[int],
+            iters: Tuple[int],
             dataset_config: DatasetConfiguration,
-            dataset_selectors: dict[
-                str, dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
+            dataset_selectors: Dict[
+                str, Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
             ]
-    ) -> dict[str, str]:
+    ) -> Dict[str, str]:
         checkpoints = {}
         for (iter_, (condition, selector)) in zip(
                 iters, dataset_selectors.items()
@@ -397,7 +397,7 @@ class Model:
             self,
             dataset_config: DatasetConfiguration,
             dataloader_config: DataloaderConfiguration,
-    ) -> tuple[DataLoader, dict[str, DataLoader]]:
+    ) -> Tuple[DataLoader, Dict[str, DataLoader]]:
         dataset_name = dataset_config.get('name', 'CASIA-B')
         if dataset_name == 'CASIA-B':
             gallery_dataset = self._parse_dataset_config(
@@ -453,7 +453,7 @@ class Model:
             dataset_config,
             popped_keys=['root_dir', 'cache_on']
         )
-        config: dict = dataset_config.copy()
+        config: Dict = dataset_config.copy()
         name = config.pop('name', 'CASIA-B')
         if name == 'CASIA-B':
             return CASIAB(**config, is_train=self.is_train)
@@ -467,7 +467,7 @@ class Model:
             dataset: Union[CASIAB],
             dataloader_config: DataloaderConfiguration
     ) -> DataLoader:
-        config: dict = dataloader_config.copy()
+        config: Dict = dataloader_config.copy()
         (self.pr, self.k) = config.pop('batch_size', (8, 16))
         if self.is_train:
             triplet_sampler = TripletSampler(dataset, (self.pr, self.k))
@@ -480,9 +480,9 @@ class Model:
 
     def _batch_splitter(
             self,
-            batch: list[dict[str, Union[np.int64, str, torch.Tensor]]]
-    ) -> tuple[dict[str, Union[list[str], torch.Tensor]],
-               dict[str, Union[list[str], torch.Tensor]]]:
+            batch: List[Dict[str, Union[np.int64, str, torch.Tensor]]]
+    ) -> Tuple[Dict[str, Union[List[str], torch.Tensor]],
+               Dict[str, Union[List[str], torch.Tensor]]]:
         """
         Disentanglement need two random conditions, this function will
         split pr * k * 2 samples to 2 dicts each containing pr * k
@@ -496,8 +496,8 @@ class Model:
         return default_collate(_batch[0]), default_collate(_batch[1])
 
     def _make_signature(self,
-                        config: dict,
-                        popped_keys: Optional[list] = None) -> str:
+                        config: Dict,
+                        popped_keys: Optional[List] = None) -> str:
         _config = config.copy()
         if popped_keys:
             for key in popped_keys:
@@ -505,16 +505,16 @@ class Model:
 
         return self._gen_sig(list(_config.values()))
 
-    def _gen_sig(self, values: Union[tuple, list, set, str, int, float]) -> str:
+    def _gen_sig(self, values: Union[Tuple, List, Set, str, int, float]) -> str:
         strings = []
         for v in values:
             if isinstance(v, str):
                 strings.append(v)
-            elif isinstance(v, (tuple, list)):
+            elif isinstance(v, (Tuple, List)):
                 strings.append(self._gen_sig(v))
-            elif isinstance(v, set):
+            elif isinstance(v, Set):
                 strings.append(self._gen_sig(sorted(list(v))))
-            elif isinstance(v, dict):
+            elif isinstance(v, Dict):
                 strings.append(self._gen_sig(list(v.values())))
             else:
                 strings.append(str(v))
