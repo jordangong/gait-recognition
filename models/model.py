@@ -182,7 +182,7 @@ class Model:
         # Training start
         start_time = datetime.now()
         running_loss = torch.zeros(5, device=self.device)
-        print(f"{'Time':^8} {'Iter':^5} {'Loss':^5}",
+        print(f"{'Time':^8} {'Iter':^5} {'Loss':^6}",
               f"{'Xrecon':^8} {'CanoCons':^8} {'PoseSim':^8}",
               f"{'BATripH':^8} {'BATripP':^8} {'LRs':^19}")
         for (batch_c1, batch_c2) in dataloader:
@@ -190,21 +190,12 @@ class Model:
             # Zero the parameter gradients
             self.optimizer.zero_grad()
             # forward + backward + optimize
-            # Feed data twice in order to reduce memory usage
             x_c1 = batch_c1['clip'].to(self.device)
+            x_c2 = batch_c2['clip'].to(self.device)
             y = batch_c1['label'].to(self.device)
             # Duplicate labels for each part
             y = y.unsqueeze(1).repeat(1, self.rgb_pn.num_total_parts)
-            # Feed condition 1 clips first
-            losses, images = self.rgb_pn(x_c1, y)
-            (xrecon_loss, hpm_ba_trip, pn_ba_trip) = losses
-            x_c2 = batch_c2['clip'].to(self.device)
-            # Then feed condition 2 clips
-            cano_cons_loss, pose_sim_loss = self.rgb_pn(x_c2, is_c1=False)
-            losses = torch.stack((
-                xrecon_loss, cano_cons_loss, pose_sim_loss,
-                hpm_ba_trip, pn_ba_trip
-            ))
+            losses, images = self.rgb_pn(x_c1, x_c2, y)
             loss = losses.sum()
             loss.backward()
             self.optimizer.step()
@@ -234,9 +225,7 @@ class Model:
                     self.writer.add_images(
                         'Canonical image', i_c, self.curr_iter
                     )
-                    for (i, (o, a, p)) in enumerate(zip(
-                            batch_c1['clip'], i_a, i_p
-                    )):
+                    for (i, (o, a, p)) in enumerate(zip(x_c1, i_a, i_p)):
                         self.writer.add_images(
                             f'Original image/batch {i}', o, self.curr_iter
                         )
@@ -250,7 +239,7 @@ class Model:
                 remaining_minute, second = divmod(time_used.seconds, 60)
                 hour, minute = divmod(remaining_minute, 60)
                 print(f'{hour:02}:{minute:02}:{second:02}',
-                      f'{self.curr_iter:5d} {running_loss.sum() / 100:5.3f}',
+                      f'{self.curr_iter:5d} {running_loss.sum() / 100:6.3f}',
                       '{:f} {:f} {:f} {:f} {:f}'.format(*running_loss / 100),
                       '{:.3e} {:.3e}'.format(lrs[0], lrs[1]))
                 running_loss.zero_()
