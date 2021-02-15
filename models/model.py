@@ -150,6 +150,7 @@ class Model:
         self.rgb_pn = RGBPartNet(self.in_channels, **model_hp,
                                  image_log_on=self.image_log_on)
         # Try to accelerate computation using CUDA or others
+        self.rgb_pn = nn.DataParallel(self.rgb_pn)
         self.rgb_pn = self.rgb_pn.to(self.device)
         self.optimizer = optim.Adam([
             {'params': self.rgb_pn.ae.parameters(), **ae_optim_hp},
@@ -196,6 +197,12 @@ class Model:
             # Duplicate labels for each part
             y = y.unsqueeze(1).repeat(1, self.rgb_pn.num_total_parts)
             losses, images = self.rgb_pn(x_c1, x_c2, y)
+            losses = torch.stack((
+                # xrecon           cano_cons         pose_sim
+                losses[0].sum(), losses[1].mean(), losses[2].mean(),
+                # hpm_ba_trip       pn_ba_trip
+                losses[3].mean(), losses[4].mean()
+            ))
             loss = losses.sum()
             loss.backward()
             self.optimizer.step()
