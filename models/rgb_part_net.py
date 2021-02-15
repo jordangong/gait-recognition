@@ -83,7 +83,7 @@ class RGBPartNet(nn.Module):
             pn_ba_trip = self.pn_ba_trip(
                 x[self.hpm_num_parts:], y[self.hpm_num_parts:]
             )
-            losses = torch.stack((*losses, hpm_ba_trip, pn_ba_trip))
+            losses = (*losses, hpm_ba_trip, pn_ba_trip)
             return losses, images
         else:
             return x.unsqueeze(1).view(-1)
