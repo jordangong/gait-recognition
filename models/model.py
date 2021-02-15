@@ -153,10 +153,10 @@ class Model:
         self.rgb_pn = nn.DataParallel(self.rgb_pn)
         self.rgb_pn = self.rgb_pn.to(self.device)
         self.optimizer = optim.Adam([
-            {'params': self.rgb_pn.ae.parameters(), **ae_optim_hp},
-            {'params': self.rgb_pn.pn.parameters(), **pn_optim_hp},
-            {'params': self.rgb_pn.hpm.parameters(), **hpm_optim_hp},
-            {'params': self.rgb_pn.fc_mat, **fc_optim_hp}
+            {'params': self.rgb_pn.module.ae.parameters(), **ae_optim_hp},
+            {'params': self.rgb_pn.module.pn.parameters(), **pn_optim_hp},
+            {'params': self.rgb_pn.module.hpm.parameters(), **hpm_optim_hp},
+            {'params': self.rgb_pn.module.fc_mat, **fc_optim_hp}
         ], **optim_hp)
         sched_gamma = sched_hp.get('gamma', 0.9)
         sched_step_size = sched_hp.get('step_size', 500)
@@ -195,7 +195,7 @@ class Model:
             x_c2 = batch_c2['clip'].to(self.device)
             y = batch_c1['label'].to(self.device)
             # Duplicate labels for each part
-            y = y.unsqueeze(1).repeat(1, self.rgb_pn.num_total_parts)
+            y = y.unsqueeze(1).repeat(1, self.rgb_pn.module.num_total_parts)
             losses, images = self.rgb_pn(x_c1, x_c2, y)
             losses = torch.stack((
                 # xrecon           cano_cons         pose_sim
