@@ -279,11 +279,11 @@ class Model:
     def transform(
             self,
             iters: Tuple[int],
-            dataset_config: DatasetConfiguration,
+            dataset_config: Dict,
             dataset_selectors: Dict[
                 str, Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
             ],
-            dataloader_config: DataloaderConfiguration
+            dataloader_config: Dict
     ):
         self.is_train = False
         # Split gallery and probe dataset
