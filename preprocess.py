@@ -52,7 +52,7 @@ def result_handler(frame_: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
             mask_x1 = (mask_xc + mask_half_width).ceil().int()
 
             # Skip incomplete frames
-            if (height < 64 or width < 64 / MASK_BOX_RATIO) \
+            if (height < 64 or width < 64 / BOX_RATIO_THRESHOLD[1]) \
                     or (mask_x0 < 0 or mask_x1 > 320) \
                     or (mask_y0 < 0 or mask_y1 > 240):
                 continue

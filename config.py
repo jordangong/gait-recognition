@@ -16,7 +16,7 @@ config: Configuration = {
         # Name of dataset (CASIA-B or FVG)
         'name': 'CASIA-B',
         # Path to dataset root (required)
-        'root_dir': 'data/CASIA-B-MRCNN/SEG',
+        'root_dir': 'data/CASIA-B-MRCNN-V2/SEG',
         # The number of subjects for training
         'train_size': 74,
         # Number of sampled frames per sequence (Training only)
@@ -27,8 +27,8 @@ config: Configuration = {
         'discard_threshold': 15,
         # Number of input channels of model
         'num_input_channels': 3,
-        # Resolution after resize, height : width should be 2 : 1
-        'frame_size': (64, 32),
+        # Resolution after resize, can be divided 16
+        'frame_size': (64, 48),
         # Cache dataset or not
         'cache_on': False,
     },
