@@ -55,6 +55,7 @@ class Model:
 
         self.is_train: bool = True
         self.in_channels: int = 3
+        self.in_size: tuple[int, int] = (64, 48)
         self.pr: Optional[int] = None
         self.k: Optional[int] = None
 
@@ -147,7 +148,7 @@ class Model:
         hpm_optim_hp = optim_hp.pop('hpm', {})
         fc_optim_hp = optim_hp.pop('fc', {})
         sched_hp = self.hp.get('scheduler', {})
-        self.rgb_pn = RGBPartNet(self.in_channels, **model_hp,
+        self.rgb_pn = RGBPartNet(self.in_channels, self.in_size, **model_hp,
                                  image_log_on=self.image_log_on)
         # Try to accelerate computation using CUDA or others
         self.rgb_pn = self.rgb_pn.to(self.device)
@@ -299,7 +300,7 @@ class Model:
 
         # Init models
         model_hp = self.hp.get('model', {})
-        self.rgb_pn = RGBPartNet(ae_in_channels=self.in_channels, **model_hp)
+        self.rgb_pn = RGBPartNet(self.in_channels, self.in_size, **model_hp)
         # Try to accelerate computation using CUDA or others
         self.rgb_pn = self.rgb_pn.to(self.device)
         self.rgb_pn.eval()
@@ -459,6 +460,7 @@ class Model:
             dataset_config: DatasetConfiguration
     ) -> Union[CASIAB]:
         self.in_channels = dataset_config.get('num_input_channels', 3)
+        self.in_size = dataset_config.get('frame_size', (64, 48))
         self._dataset_sig = self._make_signature(
             dataset_config,
             popped_keys=['root_dir', 'cache_on']

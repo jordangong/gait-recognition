@@ -11,6 +11,7 @@ class RGBPartNet(nn.Module):
     def __init__(
             self,
             ae_in_channels: int = 3,
+            ae_in_size: tuple[int, int] = (64, 48),
             ae_feature_channels: int = 64,
             f_a_c_p_dims: tuple[int, int, int] = (128, 128, 64),
             hpm_use_1x1conv: bool = False,
@@ -33,7 +34,7 @@ class RGBPartNet(nn.Module):
         self.image_log_on = image_log_on
 
         self.ae = AutoEncoder(
-            ae_in_channels, ae_feature_channels, f_a_c_p_dims
+            ae_in_channels, ae_in_size, ae_feature_channels, f_a_c_p_dims
         )
         self.pn = PartNet(
             ae_in_channels, fpfe_feature_channels, fpfe_kernel_sizes,
