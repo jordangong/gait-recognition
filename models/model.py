@@ -55,6 +55,7 @@ class Model:
 
         self.is_train: bool = True
         self.in_channels: int = 3
+        self.in_size: tuple[int, int] = (64, 48)
         self.pr: Optional[int] = None
         self.k: Optional[int] = None
 
@@ -147,7 +148,7 @@ class Model:
         hpm_optim_hp = optim_hp.pop('hpm', {})
         fc_optim_hp = optim_hp.pop('fc', {})
         sched_hp = self.hp.get('scheduler', {})
-        self.rgb_pn = RGBPartNet(self.in_channels, **model_hp,
+        self.rgb_pn = RGBPartNet(self.in_channels, self.in_size, **model_hp,
                                  image_log_on=self.image_log_on)
         # Try to accelerate computation using CUDA or others
         self.rgb_pn = nn.DataParallel(self.rgb_pn)
@@ -230,14 +231,14 @@ class Model:
                 if self.image_log_on:
                     i_a, i_c, i_p = images
                     self.writer.add_images(
+                        'Appearance image', i_a, self.curr_iter
+                    )
+                    self.writer.add_images(
                         'Canonical image', i_c, self.curr_iter
                     )
-                    for (i, (o, a, p)) in enumerate(zip(x_c1, i_a, i_p)):
+                    for i, (o, p) in enumerate(zip(x_c1, i_p)):
                         self.writer.add_images(
                             f'Original image/batch {i}', o, self.curr_iter
-                        )
-                        self.writer.add_images(
-                            f'Appearance image/batch {i}', a, self.curr_iter
                         )
                         self.writer.add_images(
                             f'Pose image/batch {i}', p, self.curr_iter
@@ -306,7 +307,7 @@ class Model:
 
         # Init models
         model_hp = self.hp.get('model', {})
-        self.rgb_pn = RGBPartNet(ae_in_channels=self.in_channels, **model_hp)
+        self.rgb_pn = RGBPartNet(self.in_channels, self.in_size, **model_hp)
         # Try to accelerate computation using CUDA or others
         self.rgb_pn = nn.DataParallel(self.rgb_pn)
         self.rgb_pn = self.rgb_pn.to(self.device)
@@ -467,6 +468,7 @@ class Model:
             dataset_config: DatasetConfiguration
     ) -> Union[CASIAB]:
         self.in_channels = dataset_config.get('num_input_channels', 3)
+        self.in_size = dataset_config.get('frame_size', (64, 48))
         self._dataset_sig = self._make_signature(
             dataset_config,
             popped_keys=['root_dir', 'cache_on']

@@ -13,39 +13,46 @@ class Encoder(nn.Module):
     def __init__(
             self,
             in_channels: int = 3,
+            frame_size: tuple[int, int] = (64, 48),
             feature_channels: int = 64,
             output_dims: Tuple[int, int, int] = (128, 128, 64)
     ):
         super().__init__()
         self.feature_channels = feature_channels
+        h_0, w_0 = frame_size
+        h_1, w_1 = h_0 // 2, w_0 // 2
+        h_2, w_2 = h_1 // 2, w_1 // 2
+        self.feature_size = self.h_3, self.w_3 = h_2 // 4, w_2 // 4
         # Appearance features, canonical features, pose features
         (self.f_a_dim, self.f_c_dim, self.f_p_dim) = output_dims
 
-        # Conv1      in_channels x 64 x 32
-        #    -> feature_map_size x 64 x 32
+        # Conv1      in_channels x H x W
+        #    -> feature_map_size x H x W
         self.conv1 = VGGConv2d(in_channels, feature_channels)
-        # MaxPool1 feature_map_size x 64 x 32
-        #       -> feature_map_size x 32 x 16
-        self.max_pool1 = nn.AdaptiveMaxPool2d((32, 16))
-        # Conv2 feature_map_size    x 32 x 16
-        #   -> (feature_map_size*4) x 32 x 16
+        # MaxPool1 feature_map_size x    H x    W
+        #       -> feature_map_size x H//2 x W//2
+        self.max_pool1 = nn.AdaptiveMaxPool2d((h_1, w_1))
+        # Conv2 feature_map_size   x H//2 x W//2
+        #   ->  feature_map_size*4 x H//2 x W//2
         self.conv2 = VGGConv2d(feature_channels, feature_channels * 4)
-        # MaxPool2 (feature_map_size*4) x 32 x 16
-        #       -> (feature_map_size*4) x 16 x 8
-        self.max_pool2 = nn.AdaptiveMaxPool2d((16, 8))
-        # Conv3 (feature_map_size*4) x 16 x 8
-        #    -> (feature_map_size*8) x 16 x 8
+        # MaxPool2 feature_map_size*4 x H//2 x W//2
+        #       -> feature_map_size*4 x H//4 x W//4
+        self.max_pool2 = nn.AdaptiveMaxPool2d((h_2, w_2))
+        # Conv3 feature_map_size*4 x H//4 x W//4
+        #    -> feature_map_size*8 x H//4 x W//4
         self.conv3 = VGGConv2d(feature_channels * 4, feature_channels * 8)
-        # Conv4 (feature_map_size*8) x 16 x 8
-        #    -> (feature_map_size*8) x 16 x 8 (for large dataset)
+        # Conv4 feature_map_size*8 x H//4 x W//4
+        #    -> feature_map_size*8 x H//4 x W//4 (for large dataset)
         self.conv4 = VGGConv2d(feature_channels * 8, feature_channels * 8)
-        # MaxPool3 (feature_map_size*8) x 16 x 8
-        # ->       (feature_map_size*8) x  4 x 2
-        self.max_pool3 = nn.AdaptiveMaxPool2d((4, 2))
+        # MaxPool3 feature_map_size*8 x  H//4 x  W//4
+        # ->       feature_map_size*8 x H//16 x W//16
+        self.max_pool3 = nn.AdaptiveMaxPool2d(self.feature_size)
 
         embedding_dim = sum(output_dims)
-        # FC (feature_map_size*8) * 4 * 2 -> 320
-        self.fc = BasicLinear(feature_channels * 8 * 2 * 4, embedding_dim)
+        # FC feature_map_size*8 * H//16 * W//16 -> embedding_dim
+        self.fc = BasicLinear(
+            (feature_channels * 8) * self.h_3 * self.w_3, embedding_dim
+        )
 
     def forward(self, x):
         x = self.conv1(x)
@@ -55,7 +62,7 @@ class Encoder(nn.Module):
         x = self.conv3(x)
         x = self.conv4(x)
         x = self.max_pool3(x)
-        x = x.view(-1, (self.feature_channels * 8) * 2 * 4)
+        x = x.view(-1, (self.feature_channels * 8) * self.h_3 * self.w_3)
         embedding = self.fc(x)
 
         f_appearance, f_canonical, f_pose = embedding.split(
@@ -71,36 +78,41 @@ class Decoder(nn.Module):
             self,
             input_dims: Tuple[int, int, int] = (128, 128, 64),
             feature_channels: int = 64,
+            feature_size: tuple[int, int] = (4, 3),
             out_channels: int = 3,
     ):
         super().__init__()
         self.feature_channels = feature_channels
+        self.h_0, self.w_0 = feature_size
 
         embedding_dim = sum(input_dims)
-        # FC 320 -> (feature_map_size*8) * 4 * 2
-        self.fc = BasicLinear(embedding_dim, feature_channels * 8 * 2 * 4)
+        # FC 320 -> feature_map_size*8 * H * W
+        self.fc = BasicLinear(
+            embedding_dim, (feature_channels * 8) * self.h_0 * self.w_0
+        )
 
-        # TransConv1 (feature_map_size*8) x 4 x 2
-        #         -> (feature_map_size*4) x 8 x 4
+        # TransConv1 feature_map_size*8 x   H x   W
+        #         -> feature_map_size*4 x H*2 x W*2
         self.trans_conv1 = DCGANConvTranspose2d(feature_channels * 8,
                                                 feature_channels * 4)
-        # TransConv2 (feature_map_size*4) x  8 x 4
-        #         -> (feature_map_size*2) x 16 x 8
+        # TransConv2 feature_map_size*4 x H*2 x W*2
+        #         -> feature_map_size*2 x H*4 x W*4
         self.trans_conv2 = DCGANConvTranspose2d(feature_channels * 4,
                                                 feature_channels * 2)
-        # TransConv3 (feature_map_size*2) x 16 x  8
-        #         ->  feature_map_size    x 32 x 16
+        # TransConv3 feature_map_size*2 x H*4 x W*4
+        #         -> feature_map_size   x H*8 x W*8
         self.trans_conv3 = DCGANConvTranspose2d(feature_channels * 2,
                                                 feature_channels)
-        # TransConv4 feature_map_size x 32 x 16
-        #         ->      in_channels x 64 x 32
+        # TransConv4 feature_map_size x  H*8 x  W*8
+        #         ->      in_channels x H*16 x W*16
         self.trans_conv4 = DCGANConvTranspose2d(feature_channels, out_channels,
                                                 is_last_layer=True)
 
     def forward(self, f_appearance, f_canonical, f_pose, cano_only=False):
         x = torch.cat((f_appearance, f_canonical, f_pose), dim=1)
         x = self.fc(x)
-        x = F.relu(x.view(-1, self.feature_channels * 8, 4, 2), inplace=True)
+        x = x.view(-1, self.feature_channels * 8, self.h_0, self.w_0)
+        x = F.relu(x, inplace=True)
         x = self.trans_conv1(x)
         x = self.trans_conv2(x)
         if cano_only:
@@ -115,12 +127,15 @@ class AutoEncoder(nn.Module):
     def __init__(
             self,
             channels: int = 3,
+            frame_size: tuple[int, int] = (64, 48),
             feature_channels: int = 64,
             embedding_dims: Tuple[int, int, int] = (128, 128, 64)
     ):
         super().__init__()
-        self.encoder = Encoder(channels, feature_channels, embedding_dims)
-        self.decoder = Decoder(embedding_dims, feature_channels, channels)
+        self.encoder = Encoder(channels, frame_size,
+                               feature_channels, embedding_dims)
+        self.decoder = Decoder(embedding_dims, feature_channels,
+                               self.encoder.feature_size, channels)
 
     def forward(self, x_c1_t2, x_c1_t1=None, x_c2_t2=None):
         n, t, c, h, w = x_c1_t2.size()
