@@ -120,8 +120,8 @@ class RGBPartNet(nn.Module):
         f_a = f_a_.view(n, t, -1)
         x_a = self.ae.decoder(
             f_a.mean(1),
-            torch.zeros((n * t, self.f_c_dim), device=device),
-            torch.zeros((n * t, self.f_p_dim), device=device)
+            torch.zeros((n, self.f_c_dim), device=device),
+            torch.zeros((n, self.f_p_dim), device=device)
         )
         return x_a
 
