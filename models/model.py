@@ -223,14 +223,14 @@ class Model:
                 if self.image_log_on:
                     i_a, i_c, i_p = images
                     self.writer.add_images(
+                        'Appearance image', i_a, self.curr_iter
+                    )
+                    self.writer.add_images(
                         'Canonical image', i_c, self.curr_iter
                     )
-                    for (i, (o, a, p)) in enumerate(zip(x_c1, i_a, i_p)):
+                    for i, (o, p) in enumerate(zip(x_c1, i_p)):
                         self.writer.add_images(
                             f'Original image/batch {i}', o, self.curr_iter
-                        )
-                        self.writer.add_images(
-                            f'Appearance image/batch {i}', a, self.curr_iter
                         )
                         self.writer.add_images(
                             f'Pose image/batch {i}', p, self.curr_iter

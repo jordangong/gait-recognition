@@ -101,7 +101,7 @@ class RGBPartNet(nn.Module):
 
                 i_a, i_c, i_p = None, None, None
                 if self.image_log_on:
-                    i_a = self._decode_appr_feature(f_a_, n, t, c, h, w, device)
+                    i_a = self._decode_appr_feature(f_a_, n, t, device)
                     # Continue decoding canonical features
                     i_c = self.ae.decoder.trans_conv3(x_c)
                     i_c = torch.sigmoid(self.ae.decoder.trans_conv4(i_c))
@@ -115,14 +115,14 @@ class RGBPartNet(nn.Module):
             x_p = self._decode_pose_feature(f_p_, n, t, c, h, w, device)
             return (x_c, x_p), None, None
 
-    def _decode_appr_feature(self, f_a_, n, t, c, h, w, device):
+    def _decode_appr_feature(self, f_a_, n, t, device):
         # Decode appearance features
-        x_a_ = self.ae.decoder(
-            f_a_,
+        f_a = f_a_.view(n, t, -1)
+        x_a = self.ae.decoder(
+            f_a.mean(1),
             torch.zeros((n * t, self.f_c_dim), device=device),
             torch.zeros((n * t, self.f_p_dim), device=device)
         )
-        x_a = x_a_.view(n, t, c, h, w)
         return x_a
 
     def _decode_cano_feature(self, f_c_, n, t, device):
