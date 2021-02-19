@@ -1,5 +1,6 @@
 import glob
 import os
+from typing import Tuple
 
 import torch
 import torchvision
@@ -23,7 +24,7 @@ class CASIABClip(Dataset):
         video, *_ = torchvision.io.read_video(filename, pts_unit='sec')
         self.frames = video.permute(0, 3, 1, 2) / 255
 
-    def __getitem__(self, index) -> tuple[int, torch.Tensor]:
+    def __getitem__(self, index) -> Tuple[int, torch.Tensor]:
         return index, self.frames[index]
 
     def __len__(self) -> int:
@@ -35,7 +36,7 @@ model = model.to(DEVICE)
 model.eval()
 
 
-def result_handler(frame_: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+def result_handler(frame_: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
     for (box, label, score, mask) in zip(*result.values()):
         x0, y0, x1, y1 = box
         height, width = y1 - y0, x1 - x0

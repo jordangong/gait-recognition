@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Tuple
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -9,7 +9,7 @@ class BasicConv2d(nn.Module):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, tuple[int, int]],
+            kernel_size: Union[int, Tuple[int, int]],
             **kwargs
     ):
         super().__init__()
@@ -28,7 +28,7 @@ class VGGConv2d(BasicConv2d):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, tuple[int, int]] = 3,
+            kernel_size: Union[int, Tuple[int, int]] = 3,
             padding: int = 1,
             **kwargs
     ):
@@ -46,7 +46,7 @@ class BasicConvTranspose2d(nn.Module):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, tuple[int, int]],
+            kernel_size: Union[int, Tuple[int, int]],
             **kwargs
     ):
         super().__init__()
@@ -65,7 +65,7 @@ class DCGANConvTranspose2d(BasicConvTranspose2d):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: Union[int, tuple[int, int]] = 4,
+            kernel_size: Union[int, Tuple[int, int]] = 4,
             stride: int = 2,
             padding: int = 1,
             is_last_layer: bool = False,

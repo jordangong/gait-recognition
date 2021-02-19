@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,9 +13,9 @@ class Encoder(nn.Module):
     def __init__(
             self,
             in_channels: int = 3,
-            frame_size: tuple[int, int] = (64, 48),
+            frame_size: Tuple[int, int] = (64, 48),
             feature_channels: int = 64,
-            output_dims: tuple[int, int, int] = (128, 128, 64)
+            output_dims: Tuple[int, int, int] = (128, 128, 64)
     ):
         super().__init__()
         self.feature_channels = feature_channels
@@ -74,9 +76,9 @@ class Decoder(nn.Module):
 
     def __init__(
             self,
-            input_dims: tuple[int, int, int] = (128, 128, 64),
+            input_dims: Tuple[int, int, int] = (128, 128, 64),
             feature_channels: int = 64,
-            feature_size: tuple[int, int] = (4, 3),
+            feature_size: Tuple[int, int] = (4, 3),
             out_channels: int = 3,
     ):
         super().__init__()
@@ -125,9 +127,9 @@ class AutoEncoder(nn.Module):
     def __init__(
             self,
             channels: int = 3,
-            frame_size: tuple[int, int] = (64, 48),
+            frame_size: Tuple[int, int] = (64, 48),
             feature_channels: int = 64,
-            embedding_dims: tuple[int, int, int] = (128, 128, 64)
+            embedding_dims: Tuple[int, int, int] = (128, 128, 64)
     ):
         super().__init__()
         self.encoder = Encoder(channels, frame_size,

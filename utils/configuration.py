@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional, Union
+from typing import TypedDict, Optional, Union, Tuple, Dict
 
 from utils.dataset import ClipClasses, ClipConditions, ClipViews
 
@@ -17,14 +17,14 @@ class DatasetConfiguration(TypedDict):
     num_sampled_frames: int
     truncate_threshold: int
     discard_threshold: int
-    selector: Optional[dict[str, Union[ClipClasses, ClipConditions, ClipViews]]]
+    selector: Optional[Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]]
     num_input_channels: int
-    frame_size: tuple[int, int]
+    frame_size: Tuple[int, int]
     cache_on: bool
 
 
 class DataloaderConfiguration(TypedDict):
-    batch_size: tuple[int, int]
+    batch_size: Tuple[int, int]
     num_workers: int
     pin_memory: bool
 
@@ -37,7 +37,7 @@ class ModelHPConfiguration(TypedDict):
 class OptimizerHPConfiguration(TypedDict):
     start_iter: int
     lr: int
-    betas: tuple[float, float]
+    betas: Tuple[float, float]
     eps: float
     weight_decay: float
     amsgrad: bool
@@ -58,8 +58,8 @@ class ModelConfiguration(TypedDict):
     name: str
     restore_iter: int
     total_iter: int
-    restore_iters: tuple[int, ...]
-    total_iters: tuple[int, ...]
+    restore_iters: Tuple[int, ...]
+    total_iters: Tuple[int, ...]
 
 
 class Configuration(TypedDict):
