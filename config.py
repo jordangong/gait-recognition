@@ -7,9 +7,9 @@ config: Configuration = {
         # GPU(s) used in training or testing if available
         'CUDA_VISIBLE_DEVICES': '0',
         # Directory used in training or testing for temporary storage
-        'save_dir': 'runs',
+        'save_dir': 'runs/dis_only',
         # Recorde disentangled image or not
-        'image_log_on': False
+        'image_log_on': True
     },
     # Dataset settings
     'dataset': {
@@ -37,7 +37,7 @@ config: Configuration = {
         # Batch size (pr, k)
         # `pr` denotes number of persons
         # `k` denotes number of sequences per person
-        'batch_size': (4, 8),
+        'batch_size': (2, 2),
         # Number of workers of Dataloader
         'num_workers': 4,
         # Faster data transfer from RAM to GPU if enabled
@@ -49,35 +49,10 @@ config: Configuration = {
             # Auto-encoder feature channels coefficient
             'ae_feature_channels': 64,
             # Appearance, canonical and pose feature dimensions
-            'f_a_c_p_dims': (128, 128, 64),
-            # Use 1x1 convolution in dimensionality reduction
-            'hpm_use_1x1conv': False,
-            # HPM pyramid scales, of which sum is number of parts
-            'hpm_scales': (1, 2, 4),
-            # Global pooling method
-            'hpm_use_avg_pool': True,
-            'hpm_use_max_pool': False,
-            # FConv feature channels coefficient
-            'fpfe_feature_channels': 32,
-            # FConv blocks kernel sizes
-            'fpfe_kernel_sizes': ((5, 3), (3, 3), (3, 3)),
-            # FConv blocks paddings
-            'fpfe_paddings': ((2, 1), (1, 1), (1, 1)),
-            # FConv blocks halving
-            'fpfe_halving': (0, 2, 3),
-            # Attention squeeze ratio
-            'tfa_squeeze_ratio': 4,
-            # Number of parts after Part Net
-            'tfa_num_parts': 16,
-            # Embedding dimension for each part
-            'embedding_dims': 256,
-            # Triplet loss margins for HPM and PartNet
-            'triplet_margins': (0.2, 0.2),
+            'f_a_c_p_dims': (192, 192, 96),
         },
         'optimizer': {
             # Global parameters
-            # Iteration start to optimize non-disentangling parts
-            # 'start_iter': 0,
             # Initial learning rate of Adam Optimizer
             'lr': 1e-4,
             # Coefficients used for computing running averages of
@@ -89,11 +64,6 @@ config: Configuration = {
             # 'weight_decay': 0,
             # Use AMSGrad or not
             # 'amsgrad': False,
-
-            # Local parameters (override global ones)
-            'auto_encoder': {
-                'weight_decay': 0.001
-            },
         },
         'scheduler': {
             # Period of learning rate decay

@@ -32,26 +32,6 @@ class DataloaderConfiguration(TypedDict):
 class ModelHPConfiguration(TypedDict):
     ae_feature_channels: int
     f_a_c_p_dims: tuple[int, int, int]
-    hpm_scales: tuple[int, ...]
-    hpm_use_1x1conv: bool
-    hpm_use_avg_pool: bool
-    hpm_use_max_pool: bool
-    fpfe_feature_channels: int
-    fpfe_kernel_sizes: tuple[tuple, ...]
-    fpfe_paddings: tuple[tuple, ...]
-    fpfe_halving: tuple[int, ...]
-    tfa_squeeze_ratio: int
-    tfa_num_parts: int
-    embedding_dims: int
-    triplet_margins: tuple[float, float]
-
-
-class SubOptimizerHPConfiguration(TypedDict):
-    lr: int
-    betas: tuple[float, float]
-    eps: float
-    weight_decay: float
-    amsgrad: bool
 
 
 class OptimizerHPConfiguration(TypedDict):
@@ -61,10 +41,6 @@ class OptimizerHPConfiguration(TypedDict):
     eps: float
     weight_decay: float
     amsgrad: bool
-    auto_encoder: SubOptimizerHPConfiguration
-    part_net: SubOptimizerHPConfiguration
-    hpm: SubOptimizerHPConfiguration
-    fc: SubOptimizerHPConfiguration
 
 
 class SchedulerHPConfiguration(TypedDict):
