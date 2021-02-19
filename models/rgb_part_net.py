@@ -13,7 +13,7 @@ class RGBPartNet(nn.Module):
     def __init__(
             self,
             ae_in_channels: int = 3,
-            ae_in_size: tuple[int, int] = (64, 48),
+            ae_in_size: Tuple[int, int] = (64, 48),
             ae_feature_channels: int = 64,
             f_a_c_p_dims: Tuple[int, int, int] = (128, 128, 64),
             hpm_use_1x1conv: bool = False,

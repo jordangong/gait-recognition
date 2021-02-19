@@ -55,7 +55,7 @@ class Model:
 
         self.is_train: bool = True
         self.in_channels: int = 3
-        self.in_size: tuple[int, int] = (64, 48)
+        self.in_size: Tuple[int, int] = (64, 48)
         self.pr: Optional[int] = None
         self.k: Optional[int] = None
 
