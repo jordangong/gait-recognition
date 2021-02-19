@@ -12,9 +12,6 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from models.rgb_part_net import RGBPartNet
-from utils.configuration import DataloaderConfiguration, \
-    HyperparameterConfiguration, DatasetConfiguration, ModelConfiguration, \
-    SystemConfiguration
 from utils.dataset import CASIAB, ClipConditions, ClipViews, ClipClasses
 from utils.sampler import TripletSampler
 
@@ -22,9 +19,9 @@ from utils.sampler import TripletSampler
 class Model:
     def __init__(
             self,
-            system_config: SystemConfiguration,
-            model_config: ModelConfiguration,
-            hyperparameter_config: HyperparameterConfiguration
+            system_config: Dict,
+            model_config: Dict,
+            hyperparameter_config: Dict
     ):
         self.disable_acc = system_config.get('disable_acc', False)
         if self.disable_acc:
@@ -106,11 +103,11 @@ class Model:
 
     def fit_all(
             self,
-            dataset_config: DatasetConfiguration,
+            dataset_config: Dict,
             dataset_selectors: Dict[
                 str, Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
             ],
-            dataloader_config: DataloaderConfiguration,
+            dataloader_config: Dict,
     ):
         for (curr_iter, total_iter, (condition, selector)) in zip(
                 self.curr_iters, self.total_iters, dataset_selectors.items()
@@ -132,8 +129,8 @@ class Model:
 
     def fit(
             self,
-            dataset_config: DatasetConfiguration,
-            dataloader_config: DataloaderConfiguration,
+            dataset_config: Dict,
+            dataloader_config: Dict,
     ):
         self.is_train = True
         dataset = self._parse_dataset_config(dataset_config)
@@ -244,11 +241,11 @@ class Model:
     def transform(
             self,
             iters: Tuple[int],
-            dataset_config: DatasetConfiguration,
+            dataset_config: Dict,
             dataset_selectors: Dict[
                 str, Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
             ],
-            dataloader_config: DataloaderConfiguration
+            dataloader_config: Dict
     ):
         self.is_train = False
         # Split gallery and probe dataset
@@ -301,7 +298,7 @@ class Model:
     def _load_pretrained(
             self,
             iters: Tuple[int],
-            dataset_config: DatasetConfiguration,
+            dataset_config: Dict,
             dataset_selectors: Dict[
                 str, Dict[str, Union[ClipClasses, ClipConditions, ClipViews]]
             ]
@@ -320,8 +317,8 @@ class Model:
 
     def _split_gallery_probe(
             self,
-            dataset_config: DatasetConfiguration,
-            dataloader_config: DataloaderConfiguration,
+            dataset_config: Dict,
+            dataloader_config: Dict,
     ) -> Tuple[DataLoader, Dict[str, DataLoader]]:
         dataset_name = dataset_config.get('name', 'CASIA-B')
         if dataset_name == 'CASIA-B':
@@ -369,7 +366,7 @@ class Model:
 
     def _parse_dataset_config(
             self,
-            dataset_config: DatasetConfiguration
+            dataset_config: Dict
     ) -> Union[CASIAB]:
         self.in_channels = dataset_config.get('num_input_channels', 3)
         self.in_size = dataset_config.get('frame_size', (64, 48))
@@ -389,7 +386,7 @@ class Model:
     def _parse_dataloader_config(
             self,
             dataset: Union[CASIAB],
-            dataloader_config: DataloaderConfiguration
+            dataloader_config: Dict
     ) -> DataLoader:
         config: Dict = dataloader_config.copy()
         (self.pr, self.k) = config.pop('batch_size', (8, 16))
