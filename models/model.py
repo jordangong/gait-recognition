@@ -396,7 +396,7 @@ class Model:
         for (iter_, (condition, selector)) in zip(
                 iters, dataset_selectors.items()
         ):
-            self.curr_iter = self.total_iter = iter_
+            self.curr_iter = iter_
             self._dataset_sig = self._make_signature(
                 dict(**dataset_config, **selector),
                 popped_keys=['root_dir', 'cache_on']
