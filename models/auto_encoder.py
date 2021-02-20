@@ -173,7 +173,7 @@ class AutoEncoder(nn.Module):
 
             return (
                 (f_a_c1_t2_, f_c_c1_t2_, f_p_c1_t2_),
-                (xrecon_loss, cano_cons_loss, pose_sim_loss * 10)
+                torch.stack((xrecon_loss, cano_cons_loss, pose_sim_loss * 10))
             )
         else:  # evaluating
             return f_c_c1_t2_, f_p_c1_t2_
