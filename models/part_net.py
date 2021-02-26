@@ -110,32 +110,22 @@ class TemporalFeatureAggregator(nn.Module):
 class PartNet(nn.Module):
     def __init__(
             self,
-            in_channels: int = 3,
-            feature_channels: int = 32,
-            kernel_sizes: tuple[tuple, ...] = ((5, 3), (3, 3), (3, 3)),
-            paddings: tuple[tuple, ...] = ((2, 1), (1, 1), (1, 1)),
-            halving: tuple[int, ...] = (0, 2, 3),
+            in_channels: int = 128,
             squeeze_ratio: int = 4,
             num_part: int = 16
     ):
         super().__init__()
         self.num_part = num_part
-        self.fpfe = FrameLevelPartFeatureExtractor(
-            in_channels, feature_channels, kernel_sizes, paddings, halving
-        )
-
-        num_fconv_blocks = len(self.fpfe.fconv_blocks)
-        self.tfa_in_channels = feature_channels * 2 ** (num_fconv_blocks - 1)
         self.tfa = TemporalFeatureAggregator(
-            self.tfa_in_channels, squeeze_ratio, self.num_part
+            in_channels, squeeze_ratio, self.num_part
         )
 
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.max_pool = nn.AdaptiveMaxPool2d(1)
 
     def forward(self, x):
-        n, t, _, _, _ = x.size()
-        x = self.fpfe(x)
+        n, t, c, h, w = x.size()
+        x = x.view(n * t, c, h, w)
         # n * t x c x h x w
 
         # Horizontal Pooling
