@@ -74,8 +74,8 @@ class RGBPartNet(nn.Module):
     def _disentangle(self, x_c1_t2, x_c2_t2=None):
         n, t, c, h, w = x_c1_t2.size()
         device = x_c1_t2.device
-        x_c1_t1 = x_c1_t2[:, torch.randperm(t), :, :, :]
         if self.training:
+            x_c1_t1 = x_c1_t2[:, torch.randperm(t), :, :, :]
             ((f_a_, f_c_, f_p_), losses) = self.ae(x_c1_t2, x_c1_t1, x_c2_t2)
             # Decode features
             x_c = self._decode_cano_feature(f_c_, n, t, device)
@@ -98,7 +98,8 @@ class RGBPartNet(nn.Module):
         else:  # evaluating
             f_c_, f_p_ = self.ae(x_c1_t2)
             x_c = self._decode_cano_feature(f_c_, n, t, device)
-            x_p = self._decode_pose_feature(f_p_, n, t, c, h, w, device)
+            x_p_ = self._decode_pose_feature(f_p_, n, t, c, h, w, device)
+            x_p = x_p_.view(n, t, self.pn_in_channels, self.h // 4, self.w // 4)
             return (x_c, x_p), None, None
 
     def _decode_appr_feature(self, f_a_, n, t, device):
