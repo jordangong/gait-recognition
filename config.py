@@ -35,7 +35,7 @@ config = {
         # Batch size (pr, k)
         # `pr` denotes number of persons
         # `k` denotes number of sequences per person
-        'batch_size': (4, 8),
+        'batch_size': (4, 6),
         # Number of workers of Dataloader
         'num_workers': 4,
         # Faster data transfer from RAM to GPU if enabled
@@ -62,7 +62,7 @@ config = {
             # Embedding dimension for each part
             'embedding_dims': 256,
             # Triplet loss margins for HPM and PartNet
-            'triplet_margins': (0.2, 0.2),
+            'triplet_margins': (1.5, 1.5),
         },
         'optimizer': {
             # Global parameters
@@ -81,15 +81,15 @@ config = {
             # 'amsgrad': False,
 
             # Local parameters (override global ones)
-            'auto_encoder': {
-                'weight_decay': 0.001
-            },
+            # 'auto_encoder': {
+            #     'weight_decay': 0.001
+            # },
         },
         'scheduler': {
             # Period of learning rate decay
             'step_size': 500,
             # Multiplicative factor of decay
-            'gamma': 0.9,
+            'gamma': 1,
         }
     },
     # Model metadata
