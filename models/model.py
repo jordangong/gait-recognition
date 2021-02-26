@@ -316,7 +316,8 @@ class Model:
         )
 
         # Init models
-        model_hp = self.hp.get('model', {})
+        model_hp: Dict = self.hp.get('model', {}).copy()
+        model_hp.pop('triplet_margins', None)
         self.rgb_pn = RGBPartNet(self.in_channels, self.in_size, **model_hp)
         # Try to accelerate computation using CUDA or others
         self.rgb_pn = nn.DataParallel(self.rgb_pn)
