@@ -61,8 +61,10 @@ config = {
             'tfa_num_parts': 16,
             # Embedding dimension for each part
             'embedding_dims': 256,
-            # Triplet loss margins for HPM and PartNet
-            'triplet_margins': (1.5, 1.5),
+            # Batch Hard or Batch All
+            'triplet_is_hard': True,
+            # Triplet loss margins for HPM and PartNet, None for soft margin
+            'triplet_margins': None,
         },
         'optimizer': {
             # Global parameters
