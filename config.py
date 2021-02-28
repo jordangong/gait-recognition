@@ -65,6 +65,8 @@ config: Configuration = {
             'embedding_dims': 256,
             # Batch Hard or Batch All
             'triplet_is_hard': True,
+            # Use non-zero mean or sum
+            'triplet_is_mean': True,
             # Triplet loss margins for HPM and PartNet, None for soft margin
             'triplet_margins': None,
         },
