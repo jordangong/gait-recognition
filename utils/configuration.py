@@ -44,6 +44,7 @@ class ModelHPConfiguration(TypedDict):
     tfa_num_parts: int
     embedding_dims: int
     triplet_is_hard: bool
+    triplet_is_mean: bool
     triplet_margins: Tuple[float, float]
 
 

@@ -53,7 +53,7 @@ config: Configuration = {
             # Use 1x1 convolution in dimensionality reduction
             'hpm_use_1x1conv': False,
             # HPM pyramid scales, of which sum is number of parts
-            'hpm_scales': (1, 2, 4),
+            'hpm_scales': (1, 2, 4, 8),
             # Global pooling method
             'hpm_use_avg_pool': True,
             'hpm_use_max_pool': True,
@@ -65,6 +65,8 @@ config: Configuration = {
             'embedding_dims': 256,
             # Batch Hard or Batch All
             'triplet_is_hard': True,
+            # Use non-zero mean or sum
+            'triplet_is_mean': True,
             # Triplet loss margins for HPM and PartNet, None for soft margin
             'triplet_margins': None,
         },
