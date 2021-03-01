@@ -147,7 +147,6 @@ class Model:
         triplet_is_mean = model_hp.pop('triplet_is_mean', True)
         triplet_margins = model_hp.pop('triplet_margins', None)
         optim_hp: Dict = self.hp.get('optimizer', {}).copy()
-        start_iter = optim_hp.pop('start_iter', 0)
         ae_optim_hp = optim_hp.pop('auto_encoder', {})
         pn_optim_hp = optim_hp.pop('part_net', {})
         hpm_optim_hp = optim_hp.pop('hpm', {})
@@ -184,14 +183,17 @@ class Model:
             {'params': self.rgb_pn.hpm.parameters(), **hpm_optim_hp},
             {'params': self.rgb_pn.fc_mat, **fc_optim_hp}
         ], **optim_hp)
-        sched_gamma = sched_hp.get('gamma', 0.9)
-        sched_step_size = sched_hp.get('step_size', 500)
+        sched_final_gamma = sched_hp.get('final_gamma', 0.001)
+        sched_start_step = sched_hp.get('start_step', 15_000)
+
+        def lr_lambda(epoch):
+            passed_step = epoch - sched_start_step
+            all_step = self.total_iter - sched_start_step
+            return sched_final_gamma ** (passed_step / all_step)
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=[
-            lambda epoch: sched_gamma ** (epoch // sched_step_size),
-            lambda epoch: 0 if epoch < start_iter else 1,
-            lambda epoch: 0 if epoch < start_iter else 1,
-            lambda epoch: 0 if epoch < start_iter else 1,
+            lr_lambda, lr_lambda, lr_lambda, lr_lambda
         ])
+
         self.writer = SummaryWriter(self._log_name)
 
         self.rgb_pn.train()
@@ -211,7 +213,7 @@ class Model:
         running_loss = torch.zeros(5, device=self.device)
         print(f"{'Time':^8} {'Iter':^5} {'Loss':^6}",
               f"{'Xrecon':^8} {'CanoCons':^8} {'PoseSim':^8}",
-              f"{'BATripH':^8} {'BATripP':^8} {'LRs':^19}")
+              f"{'BATripH':^8} {'BATripP':^8} {'LR':^9}")
         for (batch_c1, batch_c2) in dataloader:
             self.curr_iter += 1
             # Zero the parameter gradients
@@ -282,10 +284,7 @@ class Model:
                 lrs = self.scheduler.get_last_lr()
                 # Write learning rates
                 self.writer.add_scalar(
-                    'Learning rate/Auto-encoder', lrs[0], self.curr_iter
-                )
-                self.writer.add_scalar(
-                    'Learning rate/Others', lrs[1], self.curr_iter
+                    'Learning rate', lrs[0], self.curr_iter
                 )
                 # Write disentangled images
                 if self.image_log_on:
@@ -309,7 +308,7 @@ class Model:
                 print(f'{hour:02}:{minute:02}:{second:02}',
                       f'{self.curr_iter:5d} {running_loss.sum() / 100:6.3f}',
                       '{:f} {:f} {:f} {:f} {:f}'.format(*running_loss / 100),
-                      '{:.3e} {:.3e}'.format(lrs[0], lrs[1]))
+                      f'{lrs[0]:.3e}')
                 running_loss.zero_()
 
             # Step scheduler
@@ -385,6 +384,8 @@ class Model:
 
         # Init models
         model_hp: dict = self.hp.get('model', {}).copy()
+        model_hp.pop('triplet_is_hard', True)
+        model_hp.pop('triplet_is_mean', True)
         model_hp.pop('triplet_margins', None)
         self.rgb_pn = RGBPartNet(self.in_channels, self.in_size, **model_hp)
         # Try to accelerate computation using CUDA or others

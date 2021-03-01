@@ -57,7 +57,6 @@ class SubOptimizerHPConfiguration(TypedDict):
 
 
 class OptimizerHPConfiguration(TypedDict):
-    start_iter: int
     lr: int
     betas: Tuple[float, float]
     eps: float
@@ -70,8 +69,8 @@ class OptimizerHPConfiguration(TypedDict):
 
 
 class SchedulerHPConfiguration(TypedDict):
-    step_size: int
-    gamma: float
+    start_step: int
+    final_gamma: float
 
 
 class HyperparameterConfiguration(TypedDict):
