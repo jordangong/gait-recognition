@@ -56,8 +56,6 @@ class Model:
         self.in_size: Tuple[int, int] = (64, 48)
         self.pr: Optional[int] = None
         self.k: Optional[int] = None
-        self.num_pairs: Optional[int] = None
-        self.num_pos_pairs: Optional[int] = None
 
         self._gallery_dataset_meta: Optional[Dict[str, List]] = None
         self._probe_datasets_meta: Optional[Dict[str, Dict[str, List]]] = None
@@ -171,6 +169,9 @@ class Model:
                 triplet_is_hard, triplet_is_mean, None
             )
 
+        num_pairs = (self.pr*self.k-1) * (self.pr*self.k) // 2
+        num_pos_pairs = (self.k*(self.k-1)//2) * self.pr
+
         # Try to accelerate computation using CUDA or others
         self.rgb_pn = self.rgb_pn.to(self.device)
         self.triplet_loss = self.triplet_loss.to(self.device)
@@ -253,12 +254,12 @@ class Model:
             mean_hpm_dist = dist[:self.rgb_pn.hpm_num_parts].mean(0)
             self._add_ranked_scalars(
                 'Embedding/HPM distance', mean_hpm_dist,
-                self.num_pos_pairs, self.num_pairs, self.curr_iter
+                num_pos_pairs, num_pairs, self.curr_iter
             )
             mean_pa_dist = dist[self.rgb_pn.hpm_num_parts:].mean(0)
             self._add_ranked_scalars(
                 'Embedding/ParNet distance', mean_pa_dist,
-                self.num_pos_pairs, self.num_pairs, self.curr_iter
+                num_pos_pairs, num_pairs, self.curr_iter
             )
             # Embedding norm
             mean_hpm_embedding = embedding[:self.rgb_pn.hpm_num_parts].mean(0)
@@ -563,8 +564,6 @@ class Model:
     ) -> DataLoader:
         config: Dict = dataloader_config.copy()
         (self.pr, self.k) = config.pop('batch_size', (8, 16))
-        self.num_pairs = (self.pr*self.k-1) * (self.pr*self.k) // 2
-        self.num_pos_pairs = (self.k*(self.k-1)//2) * self.pr
         if self.is_train:
             triplet_sampler = TripletSampler(dataset, (self.pr, self.k))
             return DataLoader(dataset,
