@@ -81,7 +81,7 @@ class RGBPartNet(nn.Module):
             ((f_a_, f_c_, f_p_), losses) = self.ae(x_c1_t2, x_c1_t1, x_c2_t2)
             # Decode features
             x_c = self._decode_cano_feature(f_c_, n, t, device)
-            x_p_ = self._decode_pose_feature(f_p_, n, t, c, h, w, device)
+            x_p_ = self._decode_pose_feature(f_p_, n, t, device)
             x_p = x_p_.view(n, t, self.pn_in_channels, self.h // 4, self.w // 4)
 
             i_a, i_c, i_p = None, None, None
@@ -100,7 +100,7 @@ class RGBPartNet(nn.Module):
         else:  # evaluating
             f_c_, f_p_ = self.ae(x_c1_t2)
             x_c = self._decode_cano_feature(f_c_, n, t, device)
-            x_p_ = self._decode_pose_feature(f_p_, n, t, c, h, w, device)
+            x_p_ = self._decode_pose_feature(f_p_, n, t, device)
             x_p = x_p_.view(n, t, self.pn_in_channels, self.h // 4, self.w // 4)
             return (x_c, x_p), None, None
 
@@ -125,7 +125,7 @@ class RGBPartNet(nn.Module):
         )
         return x_c
 
-    def _decode_pose_feature(self, f_p_, n, t, c, h, w, device):
+    def _decode_pose_feature(self, f_p_, n, t, device):
         # Decode pose features to images
         x_p_ = self.ae.decoder(
             torch.zeros((n * t, self.f_a_dim), device=device),

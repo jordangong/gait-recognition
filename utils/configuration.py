@@ -43,6 +43,8 @@ class ModelHPConfiguration(TypedDict):
     tfa_squeeze_ratio: int
     tfa_num_parts: int
     embedding_dims: int
+    triplet_is_hard: bool
+    triplet_is_mean: bool
     triplet_margins: Tuple[float, float]
 
 
@@ -55,7 +57,6 @@ class SubOptimizerHPConfiguration(TypedDict):
 
 
 class OptimizerHPConfiguration(TypedDict):
-    start_iter: int
     lr: int
     betas: Tuple[float, float]
     eps: float
@@ -68,8 +69,8 @@ class OptimizerHPConfiguration(TypedDict):
 
 
 class SchedulerHPConfiguration(TypedDict):
-    step_size: int
-    gamma: float
+    start_step: int
+    final_gamma: float
 
 
 class HyperparameterConfiguration(TypedDict):

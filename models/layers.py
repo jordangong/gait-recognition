@@ -80,7 +80,9 @@ class DCGANConvTranspose2d(BasicConvTranspose2d):
         if self.is_last_layer:
             return self.trans_conv(x)
         else:
-            return super().forward(x)
+            x = self.trans_conv(x)
+            x = self.bn(x)
+            return F.leaky_relu(x, 0.2, inplace=True)
 
 
 class BasicLinear(nn.Module):
