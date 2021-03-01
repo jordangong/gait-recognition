@@ -5,7 +5,7 @@ config: Configuration = {
         # Disable accelerator
         'disable_acc': False,
         # GPU(s) used in training or testing if available
-        'CUDA_VISIBLE_DEVICES': '0',
+        'CUDA_VISIBLE_DEVICES': '0,1',
         # Directory used in training or testing for temporary storage
         'save_dir': 'runs',
         # Recorde disentangled image or not
@@ -30,14 +30,14 @@ config: Configuration = {
         # Resolution after resize, can be divided 16
         'frame_size': (64, 48),
         # Cache dataset or not
-        'cache_on': False,
+        'cache_on': True,
     },
     # Dataloader settings
     'dataloader': {
         # Batch size (pr, k)
         # `pr` denotes number of persons
         # `k` denotes number of sequences per person
-        'batch_size': (4, 6),
+        'batch_size': (6, 8),
         # Number of workers of Dataloader
         'num_workers': 4,
         # Faster data transfer from RAM to GPU if enabled
@@ -53,7 +53,7 @@ config: Configuration = {
             # Use 1x1 convolution in dimensionality reduction
             'hpm_use_1x1conv': False,
             # HPM pyramid scales, of which sum is number of parts
-            'hpm_scales': (1, 2, 4),
+            'hpm_scales': (1, 2, 4, 8),
             # Global pooling method
             'hpm_use_avg_pool': True,
             'hpm_use_max_pool': True,
@@ -63,13 +63,15 @@ config: Configuration = {
             'tfa_num_parts': 16,
             # Embedding dimension for each part
             'embedding_dims': 256,
-            # Triplet loss margins for HPM and PartNet
-            'triplet_margins': (1.5, 1.5),
+            # Batch Hard or Batch All
+            'triplet_is_hard': True,
+            # Use non-zero mean or sum
+            'triplet_is_mean': True,
+            # Triplet loss margins for HPM and PartNet, None for soft margin
+            'triplet_margins': None,
         },
         'optimizer': {
             # Global parameters
-            # Iteration start to optimize non-disentangling parts
-            # 'start_iter': 0,
             # Initial learning rate of Adam Optimizer
             'lr': 1e-4,
             # Coefficients used for computing running averages of
@@ -83,15 +85,15 @@ config: Configuration = {
             # 'amsgrad': False,
 
             # Local parameters (override global ones)
-            # 'auto_encoder': {
-            #     'weight_decay': 0.001
-            # },
+            'auto_encoder': {
+                'weight_decay': 0.001
+            },
         },
         'scheduler': {
-            # Period of learning rate decay
-            'step_size': 500,
-            # Multiplicative factor of decay
-            'gamma': 1,
+            # Step start to decay
+            'start_step': 15_000,
+            # Multiplicative factor of decay in the end
+            'final_gamma': 0.001,
         }
     },
     # Model metadata
@@ -105,6 +107,6 @@ config: Configuration = {
         # Restoration iteration (multiple models, e.g. nm, bg and cl)
         'restore_iters': (0, 0, 0),
         # Total iteration for training (multiple models)
-        'total_iters': (80_000, 80_000, 80_000),
+        'total_iters': (25_000, 25_000, 25_000),
     },
 }
