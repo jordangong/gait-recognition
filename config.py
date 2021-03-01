@@ -70,8 +70,6 @@ config = {
         },
         'optimizer': {
             # Global parameters
-            # Iteration start to optimize non-disentangling parts
-            # 'start_iter': 0,
             # Initial learning rate of Adam Optimizer
             'lr': 1e-4,
             # Coefficients used for computing running averages of
@@ -85,15 +83,15 @@ config = {
             # 'amsgrad': False,
 
             # Local parameters (override global ones)
-            # 'auto_encoder': {
-            #     'weight_decay': 0.001
-            # },
+            'auto_encoder': {
+                'weight_decay': 0.001
+            },
         },
         'scheduler': {
-            # Period of learning rate decay
-            'step_size': 500,
-            # Multiplicative factor of decay
-            'gamma': 1,
+            # Step start to decay
+            'start_step': 15_000,
+            # Multiplicative factor of decay in the end
+            'final_gamma': 0.001,
         }
     },
     # Model metadata
@@ -107,6 +105,6 @@ config = {
         # Restoration iteration (multiple models, e.g. nm, bg and cl)
         'restore_iters': (0, 0, 0),
         # Total iteration for training (multiple models)
-        'total_iters': (80_000, 80_000, 80_000),
+        'total_iters': (25_000, 25_000, 25_000),
     },
 }
