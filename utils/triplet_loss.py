@@ -20,8 +20,8 @@ class BatchTripletLoss(nn.Module):
     def forward(self, x, y):
         p, n, c = x.size()
         dist = self._batch_distance(x)
-        flat_dist = dist.tril(-1)
-        flat_dist = flat_dist[flat_dist != 0].view(p, -1)
+        flat_dist_mask = torch.tril_indices(n, n, offset=-1, device=dist.device)
+        flat_dist = dist[:, flat_dist_mask[0], flat_dist_mask[1]]
 
         if self.is_hard:
             positive_negative_dist = self._hard_distance(dist, y, p, n)
@@ -102,6 +102,8 @@ class JointBatchTripletLoss(BatchTripletLoss):
     def forward(self, x, y):
         p, n, c = x.size()
         dist = self._batch_distance(x)
+        flat_dist_mask = torch.tril_indices(n, n, offset=-1, device=dist.device)
+        flat_dist = dist[:, flat_dist_mask[0], flat_dist_mask[1]]
 
         if self.is_hard:
             positive_negative_dist = self._hard_distance(dist, y, p, n)
@@ -122,4 +124,4 @@ class JointBatchTripletLoss(BatchTripletLoss):
         else:  # is_sum
             loss_metric = losses.sum(1)
 
-        return loss_metric, dist, non_zero_counts
+        return loss_metric, flat_dist, non_zero_counts
