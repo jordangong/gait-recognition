@@ -68,7 +68,10 @@ class BatchTripletLoss(nn.Module):
 
     @staticmethod
     def _all_distance(dist, y, p, n):
-        positive_mask = y.unsqueeze(1) == y.unsqueeze(2)
+        # Unmask identical samples
+        positive_mask = torch.eye(
+            n, dtype=torch.bool, device=y.device
+        ) ^ (y.unsqueeze(1) == y.unsqueeze(2))
         negative_mask = y.unsqueeze(1) != y.unsqueeze(2)
         all_positive = dist[positive_mask].view(p, n, -1, 1)
         all_negative = dist[negative_mask].view(p, n, 1, -1)
