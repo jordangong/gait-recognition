@@ -282,13 +282,14 @@ class Model:
                 'Embedding/PartNet norm', mean_pa_norm,
                 self.k, self.pr * self.k, self.curr_iter
             )
+            # Learning rate
+            lrs = self.scheduler.get_last_lr()
+            # Write learning rates
+            self.writer.add_scalar(
+                'Learning rate', lrs[0], self.curr_iter
+            )
 
             if self.curr_iter % 100 == 0:
-                lrs = self.scheduler.get_last_lr()
-                # Write learning rates
-                self.writer.add_scalar(
-                    'Learning rate', lrs[0], self.curr_iter
-                )
                 # Write disentangled images
                 if self.image_log_on:
                     i_a, i_c, i_p = images
