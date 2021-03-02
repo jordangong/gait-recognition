@@ -67,7 +67,7 @@ class RGBPartNet(nn.Module):
         x = self.fc(x)
 
         if self.training:
-            return x, ae_losses, images
+            return x.transpose(0, 1), ae_losses, images
         else:
             return x.unsqueeze(1).view(-1)
 

@@ -227,11 +227,10 @@ class Model:
             y = batch_c1['label'].to(self.device)
             # Duplicate labels for each part
             y = y.repeat(self.rgb_pn.module.num_total_parts, 1)
-            trip_loss, dist, num_non_zero = self.triplet_loss(
-                embedding.contiguous(), y
-            )
+            embedding = embedding.transpose(0, 1)
+            trip_loss, dist, num_non_zero = self.triplet_loss(embedding, y)
             losses = torch.cat((
-                ae_losses.mean(0),
+                ae_losses.view(-1, 3).mean(0),
                 torch.stack((
                     trip_loss[:self.rgb_pn.module.hpm_num_parts].mean(),
                     trip_loss[self.rgb_pn.module.hpm_num_parts:].mean()
