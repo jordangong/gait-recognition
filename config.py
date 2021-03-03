@@ -78,14 +78,14 @@ config = {
             # Term added to the denominator
             # 'eps': 1e-8,
             # Weight decay (L2 penalty)
-            # 'weight_decay': 0,
+            'weight_decay': 0.001,
             # Use AMSGrad or not
             # 'amsgrad': False,
 
             # Local parameters (override global ones)
-            'auto_encoder': {
-                'weight_decay': 0.001
-            },
+            # 'auto_encoder': {
+            #     'weight_decay': 0.001
+            # },
         },
         'scheduler': {
             # Step start to decay
