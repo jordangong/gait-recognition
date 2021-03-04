@@ -423,7 +423,8 @@ class Model:
     def _get_eval_sample(self, sample: dict[str, Union[list, torch.Tensor]]):
         label = sample.pop('label').item()
         clip = sample.pop('clip').to(self.device)
-        feature = self.rgb_pn(clip).detach()
+        with torch.no_grad():
+            feature = self.rgb_pn(clip)
         return {
             **{'label': label},
             **sample,
