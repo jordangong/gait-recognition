@@ -172,6 +172,7 @@ class Model:
                 triplet_is_hard, triplet_is_mean, None
             )
 
+        num_sampled_frames = dataset_config.get('num_sampled_frames', 30)
         num_pairs = (self.pr*self.k-1) * (self.pr*self.k) // 2
         num_pos_pairs = (self.k*(self.k-1)//2) * self.pr
 
@@ -230,18 +231,31 @@ class Model:
             # forward + backward + optimize
             x_c1 = batch_c1['clip'].to(self.device)
             x_c2 = batch_c2['clip'].to(self.device)
-            embedding, ae_losses, images = self.rgb_pn(x_c1, x_c2)
+            embedding, images, feature_for_loss = self.rgb_pn(x_c1, x_c2)
+            x_c1_pred = feature_for_loss[0]
+            xrecon_loss = torch.stack([
+                F.mse_loss(x_c1_pred[:, i, :, :, :], x_c1[:, i, :, :, :])
+                for i in range(num_sampled_frames)
+            ]).sum()
+            f_c_c1_t1, f_c_c1_t2, f_c_c2_t2 = feature_for_loss[1]
+            cano_cons_loss = torch.stack([
+                F.mse_loss(f_c_c1_t1[:, i, :], f_c_c1_t2[:, i, :])
+                + F.mse_loss(f_c_c1_t2[:, i, :], f_c_c2_t2[:, i, :])
+                for i in range(num_sampled_frames)
+            ]).mean()
+            f_p_c1_t2, f_p_c2_t2 = feature_for_loss[2]
+            pose_sim_loss = F.mse_loss(
+                f_p_c1_t2.mean(1), f_p_c2_t2.mean(1)
+            ) * 10
             y = batch_c1['label'].to(self.device)
             # Duplicate labels for each part
             y = y.repeat(self.rgb_pn.module.num_total_parts, 1)
             embedding = embedding.transpose(0, 1)
-            trip_loss, dist, num_non_zero = self.triplet_loss(embedding, y)
-            losses = torch.cat((
-                ae_losses.view(-1, 3).mean(0),
-                torch.stack((
-                    trip_loss[:self.rgb_pn.module.hpm_num_parts].mean(),
-                    trip_loss[self.rgb_pn.module.hpm_num_parts:].mean()
-                ))
+            triplet_loss, dist, num_non_zero = self.triplet_loss(embedding, y)
+            hpm_loss = triplet_loss[:self.rgb_pn.module.hpm_num_parts].mean()
+            pn_loss = triplet_loss[self.rgb_pn.module.hpm_num_parts:].mean()
+            losses = torch.stack((
+                xrecon_loss, cano_cons_loss, pose_sim_loss, hpm_loss, pn_loss
             ))
             loss = losses.sum()
             loss.backward()
@@ -251,13 +265,13 @@ class Model:
             running_loss += losses.detach()
             # Write losses to TensorBoard
             self.writer.add_scalar('Loss/all', loss, self.curr_iter)
-            self.writer.add_scalars('Loss/disentanglement', dict(zip((
-                'Cross reconstruction loss', 'Canonical consistency loss',
-                'Pose similarity loss'
-            ), ae_losses)), self.curr_iter)
+            self.writer.add_scalars('Loss/disentanglement', {
+                'Cross reconstruction loss': xrecon_loss,
+                'Canonical consistency loss': cano_cons_loss,
+                'Pose similarity loss': pose_sim_loss
+            }, self.curr_iter)
             self.writer.add_scalars('Loss/triplet loss', {
-                'HPM': losses[3],
-                'PartNet': losses[4]
+                'HPM': hpm_loss, 'PartNet': pn_loss
             }, self.curr_iter)
             # None-zero losses in batch
             if num_non_zero is not None:
