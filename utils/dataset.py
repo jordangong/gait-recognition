@@ -111,9 +111,9 @@ class CASIAB(data.Dataset):
         #     in Bag #2 condition from 90 degree angle
         classes, conditions, views = [], [], []
         if selector:
-            selected_classes = selector.pop('classes', None)
-            selected_conditions = selector.pop('conditions', None)
-            selected_views = selector.pop('views', None)
+            selected_classes = selector.get('classes', None)
+            selected_conditions = selector.get('conditions', None)
+            selected_views = selector.get('views', None)
 
             class_regex = r'\d{3}'
             condition_regex = r'(nm|bg|cl)-0[0-6]'
