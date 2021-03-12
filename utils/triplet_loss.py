@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -85,43 +85,3 @@ class BatchTripletLoss(nn.Module):
         non_zero_mean = losses.sum(1) / non_zero_counts
         non_zero_mean[non_zero_counts == 0] = 0
         return non_zero_mean
-
-
-class JointBatchTripletLoss(BatchTripletLoss):
-    def __init__(
-            self,
-            hpm_num_parts: int,
-            is_hard: bool = True,
-            is_mean: bool = True,
-            margins: Tuple[float, float] = (0.2, 0.2)
-    ):
-        super().__init__(is_hard, is_mean)
-        self.hpm_num_parts = hpm_num_parts
-        self.margin_hpm, self.margin_pn = margins
-
-    def forward(self, x, y):
-        p, n, c = x.size()
-        dist = self._batch_distance(x)
-        flat_dist_mask = torch.tril_indices(n, n, offset=-1, device=dist.device)
-        flat_dist = dist[:, flat_dist_mask[0], flat_dist_mask[1]]
-
-        if self.is_hard:
-            positive_negative_dist = self._hard_distance(dist, y, p, n)
-        else:  # is_all
-            positive_negative_dist = self._all_distance(dist, y, p, n)
-
-        hpm_part_loss = F.relu(
-            self.margin_hpm + positive_negative_dist[:self.hpm_num_parts]
-        )
-        pn_part_loss = F.relu(
-            self.margin_pn + positive_negative_dist[self.hpm_num_parts:]
-        )
-        losses = torch.cat((hpm_part_loss, pn_part_loss)).view(p, -1)
-
-        non_zero_counts = (losses != 0).sum(1).float()
-        if self.is_mean:
-            loss_metric = self._none_zero_mean(losses, non_zero_counts)
-        else:  # is_sum
-            loss_metric = losses.sum(1)
-
-        return loss_metric, flat_dist, non_zero_counts

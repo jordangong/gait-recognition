@@ -64,7 +64,7 @@ def test_custom_part_net():
                  paddings=((2, 1), (1, 1), (1, 1), (1, 1)),
                  halving=(1, 1, 3, 3),
                  squeeze_ratio=8,
-                 num_part=8)
+                 num_parts=8)
     x = torch.rand(T, N, 1, H, W)
     x = pa(x)
 
