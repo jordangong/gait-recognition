@@ -112,17 +112,21 @@ class PartNet(nn.Module):
     def __init__(
             self,
             in_channels: int = 128,
+            embedding_dims: int = 256,
+            num_parts: int = 16,
             squeeze_ratio: int = 4,
-            num_part: int = 16
     ):
         super().__init__()
-        self.num_part = num_part
-        self.tfa = TemporalFeatureAggregator(
-            in_channels, squeeze_ratio, self.num_part
-        )
+        self.num_part = num_parts
 
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.max_pool = nn.AdaptiveMaxPool2d(1)
+        self.tfa = TemporalFeatureAggregator(
+            in_channels, squeeze_ratio, self.num_part
+        )
+        self.fc_mat = nn.Parameter(
+            torch.empty(num_parts, in_channels, embedding_dims)
+        )
 
     def forward(self, x):
         n, t, c, h, w = x.size()
@@ -139,4 +143,8 @@ class PartNet(nn.Module):
 
         # p, n, t, c
         x = self.tfa(x)
+
+        # p, n, c
+        x = x @ self.fc_mat
+        # p, n, d
         return x
