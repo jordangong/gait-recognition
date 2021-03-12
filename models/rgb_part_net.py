@@ -20,7 +20,7 @@ class RGBPartNet(nn.Module):
             hpm_use_max_pool: bool = True,
             tfa_squeeze_ratio: int = 4,
             tfa_num_parts: int = 16,
-            embedding_dims: tuple[int] = (256, 256),
+            embedding_dims: Tuple[int] = (256, 256),
             image_log_on: bool = False
     ):
         super().__init__()
