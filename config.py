@@ -50,19 +50,17 @@ config: Configuration = {
             'ae_feature_channels': 64,
             # Appearance, canonical and pose feature dimensions
             'f_a_c_p_dims': (192, 192, 96),
-            # Use 1x1 convolution in dimensionality reduction
-            'hpm_use_1x1conv': False,
             # HPM pyramid scales, of which sum is number of parts
             'hpm_scales': (1, 2, 4, 8),
             # Global pooling method
             'hpm_use_avg_pool': True,
             'hpm_use_max_pool': True,
-            # Attention squeeze ratio
-            'tfa_squeeze_ratio': 4,
             # Number of parts after Part Net
             'tfa_num_parts': 16,
-            # Embedding dimension for each part
-            'embedding_dims': 256,
+            # Attention squeeze ratio
+            'tfa_squeeze_ratio': 4,
+            # Embedding dimensions for each part
+            'embedding_dims': (256, 256),
             # Batch Hard or Batch All
             'triplet_is_hard': True,
             # Use non-zero mean or sum
@@ -91,9 +89,14 @@ config: Configuration = {
         },
         'scheduler': {
             # Step start to decay
-            'start_step': 15_000,
+            'start_step': 500,
             # Multiplicative factor of decay in the end
-            'final_gamma': 0.001,
+            'final_gamma': 0.01,
+
+            # Local parameters (override global ones)
+            'hpm': {
+                'final_gamma': 0.001
+            }
         }
     },
     # Model metadata
@@ -107,6 +110,6 @@ config: Configuration = {
         # Restoration iteration (multiple models, e.g. nm, bg and cl)
         'restore_iters': (0, 0, 0),
         # Total iteration for training (multiple models)
-        'total_iters': (25_000, 25_000, 25_000),
+        'total_iters': (30_000, 40_000, 60_000),
     },
 }
