@@ -291,7 +291,7 @@ class Model:
                 'PartNet': losses[4]
             }, self.curr_iter)
             # None-zero losses in batch
-            if hpm_num_non_zero is not None and hpm_num_non_zero is not None:
+            if hpm_num_non_zero is not None and pn_num_non_zero is not None:
                 self.writer.add_scalars('Loss/non-zero counts', {
                     'HPM': hpm_num_non_zero.mean(),
                     'PartNet': pn_num_non_zero.mean()
