@@ -33,16 +33,11 @@ class ModelHPConfiguration(TypedDict):
     ae_feature_channels: int
     f_a_c_p_dims: tuple[int, int, int]
     hpm_scales: tuple[int, ...]
-    hpm_use_1x1conv: bool
     hpm_use_avg_pool: bool
     hpm_use_max_pool: bool
-    fpfe_feature_channels: int
-    fpfe_kernel_sizes: tuple[tuple, ...]
-    fpfe_paddings: tuple[tuple, ...]
-    fpfe_halving: tuple[int, ...]
-    tfa_squeeze_ratio: int
     tfa_num_parts: int
-    embedding_dims: int
+    tfa_squeeze_ratio: int
+    embedding_dims: tuple[int]
     triplet_is_hard: bool
     triplet_is_mean: bool
     triplet_margins: tuple[float, float]
@@ -63,14 +58,21 @@ class OptimizerHPConfiguration(TypedDict):
     weight_decay: float
     amsgrad: bool
     auto_encoder: SubOptimizerHPConfiguration
-    part_net: SubOptimizerHPConfiguration
     hpm: SubOptimizerHPConfiguration
-    fc: SubOptimizerHPConfiguration
+    part_net: SubOptimizerHPConfiguration
+
+
+class SubSchedulerHPConfiguration(TypedDict):
+    start_step: int
+    final_gamma: float
 
 
 class SchedulerHPConfiguration(TypedDict):
     start_step: int
     final_gamma: float
+    auto_encoder: SubSchedulerHPConfiguration
+    hpm: SubSchedulerHPConfiguration
+    part_net: SubSchedulerHPConfiguration
 
 
 class HyperparameterConfiguration(TypedDict):
