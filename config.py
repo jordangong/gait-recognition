@@ -92,9 +92,9 @@ config = {
             'final_gamma': 0.01,
 
             # Local parameters (override global ones)
-            'hpm': {
-                'final_gamma': 0.001
-            }
+            # 'hpm': {
+            #     'final_gamma': 0.001
+            # }
         }
     },
     # Model metadata
