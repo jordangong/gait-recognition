@@ -425,7 +425,6 @@ class Model:
                                unit='clips'):
                 gallery_samples_c.append(self._get_eval_sample(sample))
             gallery_samples[condition] = default_collate(gallery_samples_c)
-            gallery_samples['meta'] = self._gallery_dataset_meta
             # Probe
             probe_samples_c = []
             for sample in tqdm(probe_dataloader,
@@ -435,6 +434,7 @@ class Model:
             probe_samples_c = default_collate(probe_samples_c)
             probe_samples_c['meta'] = self._probe_datasets_meta[condition]
             probe_samples[condition] = probe_samples_c
+        gallery_samples['meta'] = self._gallery_dataset_meta
 
         return gallery_samples, probe_samples
 
