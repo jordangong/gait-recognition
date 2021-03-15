@@ -439,14 +439,14 @@ class Model:
         return gallery_samples, probe_samples
 
     def _get_eval_sample(self, sample: dict[str, Union[list, torch.Tensor]]):
-        label = sample.pop('label').item()
-        clip = sample.pop('clip').to(self.device)
+        label, condition, view, clip = sample.values()
         with torch.no_grad():
-            feature = self.rgb_pn(clip)
+            feature = self.rgb_pn(clip.to(self.device))
         return {
-            **{'label': label},
-            **sample,
-            **{'feature': feature}
+            'label': label.item(),
+            'condition': condition[0],
+            'view': view[0],
+            'feature': feature
         }
 
     @staticmethod
