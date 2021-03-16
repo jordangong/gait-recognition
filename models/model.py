@@ -54,8 +54,8 @@ class Model:
         self.hp = hyperparameter_config
         self.curr_iter = self.meta.get('restore_iter', 0)
         self.total_iter = self.meta.get('total_iter', 80_000)
-        self.curr_iters = self.meta.get('restore_iters', (0, 0, 0))
-        self.total_iters = self.meta.get('total_iters', (80000, 80000, 80000))
+        self.curr_iters = self.meta.get('restore_iters', (self.curr_iter,))
+        self.total_iters = self.meta.get('total_iters', (self.total_iter,))
 
         self.is_train: bool = True
         self.in_channels: int = 3
