@@ -59,7 +59,7 @@ class RGBPartNet(nn.Module):
         if self.training:
             return x_c, x_p, ae_losses, images
         else:
-            return torch.cat((x_c.view(-1), x_p.view(-1)))
+            return x_c, x_p
 
     def _disentangle(self, x_c1_t2, x_c2_t2=None):
         n, t, c, h, w = x_c1_t2.size()
