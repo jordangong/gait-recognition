@@ -14,6 +14,7 @@ class DatasetConfiguration(TypedDict):
     name: str
     root_dir: str
     train_size: int
+    val_size: int
     num_sampled_frames: int
     truncate_threshold: int
     discard_threshold: int
