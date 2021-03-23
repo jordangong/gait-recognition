@@ -152,7 +152,8 @@ class Model:
         train_size = dataset_config.get('train_size', 74)
         val_dataset_config['train_size'] = train_size + val_size
         val_dataset_config['selector']['classes'] = ClipClasses({
-            str(c).zfill(3) for c in range(train_size, train_size + val_size)
+            str(c).zfill(3)
+            for c in range(train_size + 1, train_size + val_size + 1)
         })
         val_dataset = self._parse_dataset_config(val_dataset_config)
         val_dataloader = iter(self._parse_dataloader_config(
