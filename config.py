@@ -9,7 +9,9 @@ config: Configuration = {
         # Directory used in training or testing for temporary storage
         'save_dir': 'runs',
         # Recorde disentangled image or not
-        'image_log_on': False
+        'image_log_on': False,
+        # The number of subjects for validating (Part of testing set)
+        'val_size': 10,
     },
     # Dataset settings
     'dataset': {
@@ -94,9 +96,9 @@ config: Configuration = {
             'final_gamma': 0.01,
 
             # Local parameters (override global ones)
-            'hpm': {
-                'final_gamma': 0.001
-            }
+            # 'hpm': {
+            #     'final_gamma': 0.001
+            # }
         }
     },
     # Model metadata
