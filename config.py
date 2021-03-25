@@ -9,7 +9,9 @@ config: Configuration = {
         # Directory used in training or testing for temporary storage
         'save_dir': 'runs',
         # Recorde disentangled image or not
-        'image_log_on': False
+        'image_log_on': False,
+        # The number of subjects for validating (Part of testing set)
+        'val_size': 10,
     },
     # Dataset settings
     'dataset': {
@@ -19,8 +21,6 @@ config: Configuration = {
         'root_dir': 'data/CASIA-B-MRCNN-V2/SEG',
         # The number of subjects for training
         'train_size': 74,
-        # The number of subjects for validating (Part of testing set)
-        'val_size': 10,
         # Number of sampled frames per sequence (Training only)
         'num_sampled_frames': 30,
         # Truncate clips longer than `truncate_threshold`
