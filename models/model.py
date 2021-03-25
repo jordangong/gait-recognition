@@ -79,6 +79,7 @@ class Model:
         self.scheduler: Optional[optim.lr_scheduler.StepLR] = None
         self.writer: Optional[SummaryWriter] = None
         self.image_log_on = system_config.get('image_log_on', False)
+        self.val_size = system_config.get('val_size', 10)
 
         self.CASIAB_GALLERY_SELECTOR = {
             'selector': {'conditions': ClipConditions({r'nm-0[1-4]'})}
@@ -147,13 +148,12 @@ class Model:
         self.is_train = True
         # Validation dataset
         # (the first `val_size` subjects from evaluation set)
-        val_size = dataset_config.pop('val_size', 10)
         val_dataset_config = copy.deepcopy(dataset_config)
         train_size = dataset_config.get('train_size', 74)
-        val_dataset_config['train_size'] = train_size + val_size
+        val_dataset_config['train_size'] = train_size + self.val_size
         val_dataset_config['selector']['classes'] = ClipClasses({
             str(c).zfill(3)
-            for c in range(train_size + 1, train_size + val_size + 1)
+            for c in range(train_size + 1, train_size + self.val_size + 1)
         })
         val_dataset = self._parse_dataset_config(val_dataset_config)
         val_dataloader = iter(self._parse_dataloader_config(
@@ -569,7 +569,7 @@ class Model:
         for (iter_, total_iter, (condition, selector)) in zip(
                 iters, self.total_iters, dataset_selectors.items()
         ):
-            self.curr_iter = iter_
+            self.curr_iter = iter_ - 1
             self.total_iter = total_iter
             self._dataset_sig = self._make_signature(
                 dict(**dataset_config, **selector),
