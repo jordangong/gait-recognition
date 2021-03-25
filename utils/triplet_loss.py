@@ -28,6 +28,7 @@ class BatchTripletLoss(nn.Module):
         else:  # is_all
             positive_negative_dist = self._all_distance(dist, y, p, n)
 
+        non_zero_counts = None
         if self.margin:
             losses = F.relu(self.margin + positive_negative_dist).view(p, -1)
             non_zero_counts = (losses != 0).sum(1).float()
@@ -35,14 +36,18 @@ class BatchTripletLoss(nn.Module):
                 loss_metric = self._none_zero_mean(losses, non_zero_counts)
             else:  # is_sum
                 loss_metric = losses.sum(1)
-            return loss_metric, flat_dist, non_zero_counts
         else:  # Soft margin
             losses = F.softplus(positive_negative_dist).view(p, -1)
             if self.is_mean:
                 loss_metric = losses.mean(1)
             else:  # is_sum
                 loss_metric = losses.sum(1)
-            return loss_metric, flat_dist, None
+
+        return {
+            'loss': loss_metric,
+            'dist': flat_dist,
+            'counts': non_zero_counts
+        }
 
     @staticmethod
     def _batch_distance(x):
