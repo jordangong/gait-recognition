@@ -32,7 +32,7 @@ class DataloaderConfiguration(TypedDict):
 
 class ModelHPConfiguration(TypedDict):
     ae_feature_channels: int
-    f_a_c_p_dims: tuple[int, int, int]
+    f_a_c_p_dims: Tuple[int, int, int]
 
 
 class OptimizerHPConfiguration(TypedDict):
