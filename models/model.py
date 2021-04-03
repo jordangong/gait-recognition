@@ -341,8 +341,8 @@ class Model:
         )
         losses = torch.stack((
             *ae_losses,
-            torch.log(hpm_result.pop('loss').mean() + 1),
-            torch.log(pn_result.pop('loss').mean() + 1)
+            hpm_result.pop('loss').mean(),
+            pn_result.pop('loss').mean()
         ))
         return losses, hpm_result, pn_result
 
