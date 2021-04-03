@@ -106,15 +106,13 @@ class Decoder(nn.Module):
         self.trans_conv4 = DCGANConvTranspose2d(feature_channels, out_channels,
                                                 is_last_layer=True)
 
-    def forward(self, f_appearance, f_canonical, f_pose, cano_only=False):
+    def forward(self, f_appearance, f_canonical, f_pose):
         x = torch.cat((f_appearance, f_canonical, f_pose), dim=1)
         x = self.fc(x)
         x = x.view(-1, self.feature_channels * 8, self.h_0, self.w_0)
         x = F.relu(x, inplace=True)
         x = self.trans_conv1(x)
         x = self.trans_conv2(x)
-        if cano_only:
-            return x
         x = self.trans_conv3(x)
         x = torch.sigmoid(self.trans_conv4(x))
 
