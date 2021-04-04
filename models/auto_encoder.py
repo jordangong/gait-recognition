@@ -112,7 +112,7 @@ class Decoder(nn.Module):
         x = torch.cat((f_appearance, f_canonical, f_pose), dim=1)
         x = self.fc(x)
         x = x.view(-1, self.feature_channels * 8, self.h_0, self.w_0)
-        x = F.relu(x, inplace=True)
+        x = F.leaky_relu(x, 0.2, inplace=True)
         x = self.trans_conv1(x)
         x = self.trans_conv2(x)
         x = self.trans_conv3(x)
@@ -124,6 +124,7 @@ class Decoder(nn.Module):
 class AutoEncoder(nn.Module):
     def __init__(
             self,
+            num_class: int,
             channels: int = 3,
             frame_size: Tuple[int, int] = (64, 48),
             feature_channels: int = 64,
@@ -134,8 +135,9 @@ class AutoEncoder(nn.Module):
                                feature_channels, embedding_dims)
         self.decoder = Decoder(embedding_dims, feature_channels,
                                self.encoder.feature_size, channels)
+        self.classifier = BasicLinear(embedding_dims[1], num_class)
 
-    def forward(self, x_c1_t2, x_c1_t1=None, x_c2_t2=None):
+    def forward(self, x_c1_t2, x_c1_t1=None, x_c2_t2=None, y=None):
         n, t, c, h, w = x_c1_t2.size()
         # x_c1_t2 is the frame for later module
         x_c1_t2_ = x_c1_t2.view(n * t, c, h, w)
@@ -162,6 +164,9 @@ class AutoEncoder(nn.Module):
             cano_cons_loss = torch.stack([
                 F.mse_loss(f_c_c1_t1[:, i, :], f_c_c1_t2[:, i, :])
                 + F.mse_loss(f_c_c1_t2[:, i, :], f_c_c2_t2[:, i, :])
+                + F.cross_entropy(self.classifier(
+                    F.leaky_relu(f_c_c1_t2[:, i, :], 0.2)
+                ), y)
                 for i in range(t)
             ]).mean()
 
