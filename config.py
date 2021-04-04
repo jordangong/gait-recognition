@@ -11,7 +11,7 @@ config: Configuration = {
         # Recorde disentangled image or not
         'image_log_on': True,
         # The number of subjects for validating (Part of testing set)
-        'val_size': 10,
+        'val_size': 20,
     },
     # Dataset settings
     'dataset': {
@@ -36,10 +36,8 @@ config: Configuration = {
     },
     # Dataloader settings
     'dataloader': {
-        # Batch size (pr, k)
-        # `pr` denotes number of persons
-        # `k` denotes number of sequences per person
-        'batch_size': (4, 6),
+        # Batch size
+        'batch_size': 16,
         # Number of workers of Dataloader
         'num_workers': 4,
         # Faster data transfer from RAM to GPU if enabled

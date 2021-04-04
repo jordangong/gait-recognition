@@ -25,7 +25,7 @@ class DatasetConfiguration(TypedDict):
 
 
 class DataloaderConfiguration(TypedDict):
-    batch_size: Tuple[int, int]
+    batch_size: int
     num_workers: int
     pin_memory: bool
 
