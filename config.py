@@ -9,7 +9,7 @@ config = {
         # Recorde disentangled image or not
         'image_log_on': False,
         # The number of subjects for validating (Part of testing set)
-        'val_size': 10,
+        'val_size': 20,
     },
     # Dataset settings
     'dataset': {
@@ -49,7 +49,7 @@ config = {
             # Auto-encoder feature channels coefficient
             'ae_feature_channels': 64,
             # Appearance, canonical and pose feature dimensions
-            'f_a_c_p_dims': (192, 192, 96),
+            'f_a_c_p_dims': (192, 192, 128),
             # HPM pyramid scales, of which sum is number of parts
             'hpm_scales': (1, 2, 4, 8),
             # Global pooling method
