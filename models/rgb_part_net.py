@@ -59,25 +59,26 @@ class RGBPartNet(nn.Module):
         if self.training:
             i_a, i_c, i_p = None, None, None
             if self.image_log_on:
-                f_a_mean = f_a.mean(1)
-                i_a = self.ae.decoder(
-                    f_a_mean,
-                    torch.zeros_like(f_c_mean),
-                    torch.zeros_like(f_p[:, 0])
-                )
-                i_c = self.ae.decoder(
-                    torch.zeros_like(f_a_mean),
-                    f_c_mean,
-                    torch.zeros_like(f_p[:, 0])
-                )
-                f_p_size = f_p.size()
-                i_p = self.ae.decoder(
-                    torch.zeros(f_p_size[0] * f_p_size[1], *f_a.shape[2:],
-                                device=f_a.device),
-                    torch.zeros(f_p_size[0] * f_p_size[1], *f_c.shape[2:],
-                                device=f_c.device),
-                    f_p.view(-1, *f_p_size[2:])
-                ).view(x_c1.size())
+                with torch.no_grad():
+                    f_a_mean = f_a.mean(1)
+                    i_a = self.ae.decoder(
+                        f_a_mean,
+                        torch.zeros_like(f_c_mean),
+                        torch.zeros_like(f_p[:, 0])
+                    )
+                    i_c = self.ae.decoder(
+                        torch.zeros_like(f_a_mean),
+                        f_c_mean,
+                        torch.zeros_like(f_p[:, 0])
+                    )
+                    f_p_size = f_p.size()
+                    i_p = self.ae.decoder(
+                        torch.zeros(f_p_size[0] * f_p_size[1], *f_a.shape[2:],
+                                    device=f_a.device),
+                        torch.zeros(f_p_size[0] * f_p_size[1], *f_c.shape[2:],
+                                    device=f_c.device),
+                        f_p.view(-1, *f_p_size[2:])
+                    ).view(x_c1.size())
             return x_c, x_p, ae_losses, (i_a, i_c, i_p)
         else:
             return x_c, x_p
