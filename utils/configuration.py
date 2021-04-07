@@ -8,6 +8,7 @@ class SystemConfiguration(TypedDict):
     CUDA_VISIBLE_DEVICES: str
     save_dir: str
     image_log_on: bool
+    image_log_steps: int
     val_size: int
 
 

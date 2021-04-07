@@ -10,6 +10,8 @@ config: Configuration = {
         'save_dir': 'runs',
         # Recorde disentangled image or not
         'image_log_on': False,
+        # Image log per n steps
+        'image_log_steps': 100,
         # The number of subjects for validating (Part of testing set)
         'val_size': 20,
     },
