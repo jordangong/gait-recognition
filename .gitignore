@@ -148,3 +148,5 @@ dmypy.json
 data/
 # Runtime
 runs/
+# Jupter notebooks
+notebooks/
