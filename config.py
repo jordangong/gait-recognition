@@ -10,6 +10,8 @@ config: Configuration = {
         'save_dir': 'runs',
         # Recorde disentangled image or not
         'image_log_on': False,
+        # Image log per n steps
+        'image_log_steps': 100,
         # The number of subjects for validating (Part of testing set)
         'val_size': 20,
     },
@@ -39,7 +41,7 @@ config: Configuration = {
         # Batch size (pr, k)
         # `pr` denotes number of persons
         # `k` denotes number of sequences per person
-        'batch_size': (4, 6),
+        'batch_size': (4, 5),
         # Number of workers of Dataloader
         'num_workers': 4,
         # Faster data transfer from RAM to GPU if enabled
@@ -86,18 +88,22 @@ config: Configuration = {
 
             # Local parameters (override global ones)
             # 'auto_encoder': {
-            #     'weight_decay': 0.001
+            #     'lr': 1e-3
             # },
         },
         'scheduler': {
             # Step start to decay
             'start_step': 500,
+            # Step stop decaying
+            # 'stop_step': 30_000,
             # Multiplicative factor of decay in the end
             'final_gamma': 0.01,
 
             # Local parameters (override global ones)
-            # 'hpm': {
-            #     'final_gamma': 0.001
+            # 'auto_encoder': {
+            #     'start_step': 0,
+            #     'stop_step': 500,
+            #     'final_gamma': 0.5
             # }
         }
     },

@@ -79,6 +79,7 @@ class Model:
         self.scheduler: Optional[optim.lr_scheduler.StepLR] = None
         self.writer: Optional[SummaryWriter] = None
         self.image_log_on = system_config.get('image_log_on', False)
+        self.image_log_steps = system_config.get('image_log_steps', 100)
         self.val_size = system_config.get('val_size', 10)
 
         self.CASIAB_GALLERY_SELECTOR = {
@@ -196,8 +197,8 @@ class Model:
                 triplet_is_hard, triplet_is_mean, None
             )
 
-        self.num_pairs = (self.pr*self.k-1) * (self.pr*self.k) // 2
-        self.num_pos_pairs = (self.k*(self.k-1)//2) * self.pr
+        self.num_pairs = (self.pr * self.k - 1) * (self.pr * self.k) // 2
+        self.num_pos_pairs = (self.k * (self.k - 1) // 2) * self.pr
 
         # Try to accelerate computation using CUDA or others
         self.rgb_pn = self.rgb_pn.to(self.device)
@@ -211,24 +212,31 @@ class Model:
         ], **optim_hp)
 
         # Scheduler
-        start_step = sched_hp.get('start_step', 15_000)
+        start_step = sched_hp.get('start_step', 0)
+        stop_step = sched_hp.get('stop_step', self.total_iter)
         final_gamma = sched_hp.get('final_gamma', 0.001)
         ae_start_step = ae_sched_hp.get('start_step', start_step)
+        ae_stop_step = ae_sched_hp.get('stop_step', stop_step)
         ae_final_gamma = ae_sched_hp.get('final_gamma', final_gamma)
-        ae_all_step = self.total_iter - ae_start_step
+        ae_all_step = ae_stop_step - ae_start_step
         hpm_start_step = hpm_sched_hp.get('start_step', start_step)
+        hpm_stop_step = hpm_sched_hp.get('stop_step', stop_step)
         hpm_final_gamma = hpm_sched_hp.get('final_gamma', final_gamma)
-        hpm_all_step = self.total_iter - hpm_start_step
+        hpm_all_step = hpm_stop_step - hpm_start_step
         pn_start_step = pn_sched_hp.get('start_step', start_step)
+        pn_stop_step = pn_sched_hp.get('stop_step', stop_step)
         pn_final_gamma = pn_sched_hp.get('final_gamma', final_gamma)
-        pn_all_step = self.total_iter - pn_start_step
+        pn_all_step = pn_stop_step - pn_start_step
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=[
-            lambda t: ae_final_gamma ** ((t - ae_start_step) / ae_all_step)
-            if t > ae_start_step else 1,
-            lambda t: hpm_final_gamma ** ((t - hpm_start_step) / hpm_all_step)
-            if t > hpm_start_step else 1,
-            lambda t: pn_final_gamma ** ((t - pn_start_step) / pn_all_step)
-            if t > pn_start_step else 1,
+            lambda t: 1 if t <= ae_start_step
+            else ae_final_gamma ** ((t - ae_start_step) / ae_all_step)
+            if ae_start_step < t <= ae_stop_step else ae_final_gamma,
+            lambda t: 1 if t <= hpm_start_step
+            else hpm_final_gamma ** ((t - hpm_start_step) / hpm_all_step)
+            if hpm_start_step < t <= hpm_stop_step else hpm_final_gamma,
+            lambda t: 1 if t <= pn_start_step
+            else pn_final_gamma ** ((t - pn_start_step) / pn_all_step)
+            if pn_start_step < t <= pn_stop_step else pn_final_gamma,
         ])
 
         self.writer = SummaryWriter(self._log_name)
@@ -278,24 +286,25 @@ class Model:
                 'Train', embed_c, embed_p, hpm_result, pn_result, loss, losses
             )
 
-            if self.curr_iter % 100 == 99:
-                # Write disentangled images
-                if self.image_log_on:
-                    i_a, i_c, i_p = images
+            # Write disentangled images
+            if self.image_log_on and self.curr_iter % self.image_log_steps \
+                    == self.image_log_steps - 1:
+                i_a, i_c, i_p = images
+                self.writer.add_images(
+                    'Appearance image', i_a, self.curr_iter
+                )
+                self.writer.add_images(
+                    'Canonical image', i_c, self.curr_iter
+                )
+                for i, (o, p) in enumerate(zip(x_c1, i_p)):
                     self.writer.add_images(
-                        'Appearance image', i_a, self.curr_iter
+                        f'Original image/batch {i}', o, self.curr_iter
                     )
                     self.writer.add_images(
-                        'Canonical image', i_c, self.curr_iter
+                        f'Pose image/batch {i}', p, self.curr_iter
                     )
-                    for i, (o, p) in enumerate(zip(x_c1, i_p)):
-                        self.writer.add_images(
-                            f'Original image/batch {i}', o, self.curr_iter
-                        )
-                        self.writer.add_images(
-                            f'Pose image/batch {i}', p, self.curr_iter
-                        )
 
+            if self.curr_iter % 100 == 99:
                 # Validation
                 embed_c = self._flatten_embedding(embed_c)
                 embed_p = self._flatten_embedding(embed_p)
@@ -352,7 +361,7 @@ class Model:
     def _write_embedding(self, tag, embed, x, y):
         frame = x[:, 0, :, :, :].cpu()
         n, c, h, w = frame.size()
-        padding = torch.zeros(n, c, h, (h-w) // 2)
+        padding = torch.zeros(n, c, h, (h - w) // 2)
         padded_frame = torch.cat((padding, frame, padding), dim=-1)
         self.writer.add_embedding(
             embed,

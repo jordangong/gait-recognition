@@ -8,6 +8,7 @@ class SystemConfiguration(TypedDict):
     CUDA_VISIBLE_DEVICES: str
     save_dir: str
     image_log_on: bool
+    image_log_steps: int
     val_size: int
 
 
@@ -65,11 +66,13 @@ class OptimizerHPConfiguration(TypedDict):
 
 class SubSchedulerHPConfiguration(TypedDict):
     start_step: int
+    stop_step: int
     final_gamma: float
 
 
 class SchedulerHPConfiguration(TypedDict):
     start_step: int
+    stop_step: int
     final_gamma: float
     auto_encoder: SubSchedulerHPConfiguration
     hpm: SubSchedulerHPConfiguration
