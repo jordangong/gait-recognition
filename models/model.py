@@ -212,24 +212,31 @@ class Model:
         ], **optim_hp)
 
         # Scheduler
-        start_step = sched_hp.get('start_step', 15_000)
+        start_step = sched_hp.get('start_step', 0)
+        stop_step = sched_hp.get('stop_step', self.total_iter)
         final_gamma = sched_hp.get('final_gamma', 0.001)
         ae_start_step = ae_sched_hp.get('start_step', start_step)
+        ae_stop_step = ae_sched_hp.get('stop_step', stop_step)
         ae_final_gamma = ae_sched_hp.get('final_gamma', final_gamma)
-        ae_all_step = self.total_iter - ae_start_step
+        ae_all_step = ae_stop_step - ae_start_step
         hpm_start_step = hpm_sched_hp.get('start_step', start_step)
+        hpm_stop_step = hpm_sched_hp.get('stop_step', stop_step)
         hpm_final_gamma = hpm_sched_hp.get('final_gamma', final_gamma)
-        hpm_all_step = self.total_iter - hpm_start_step
+        hpm_all_step = hpm_stop_step - hpm_start_step
         pn_start_step = pn_sched_hp.get('start_step', start_step)
+        pn_stop_step = pn_sched_hp.get('stop_step', stop_step)
         pn_final_gamma = pn_sched_hp.get('final_gamma', final_gamma)
-        pn_all_step = self.total_iter - pn_start_step
+        pn_all_step = pn_stop_step - pn_start_step
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=[
-            lambda t: ae_final_gamma ** ((t - ae_start_step) / ae_all_step)
-            if t > ae_start_step else 1,
-            lambda t: hpm_final_gamma ** ((t - hpm_start_step) / hpm_all_step)
-            if t > hpm_start_step else 1,
-            lambda t: pn_final_gamma ** ((t - pn_start_step) / pn_all_step)
-            if t > pn_start_step else 1,
+            lambda t: 1 if t <= ae_start_step
+            else ae_final_gamma ** ((t - ae_start_step) / ae_all_step)
+            if ae_start_step < t <= ae_stop_step else ae_final_gamma,
+            lambda t: 1 if t <= hpm_start_step
+            else hpm_final_gamma ** ((t - hpm_start_step) / hpm_all_step)
+            if hpm_start_step < t <= hpm_stop_step else hpm_final_gamma,
+            lambda t: 1 if t <= pn_start_step
+            else pn_final_gamma ** ((t - pn_start_step) / pn_all_step)
+            if pn_start_step < t <= pn_stop_step else pn_final_gamma,
         ])
 
         self.writer = SummaryWriter(self._log_name)
