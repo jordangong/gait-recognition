@@ -33,8 +33,9 @@ class HorizontalPyramidMatching(nn.Module):
         ])
         return pyramid
 
-    def forward(self, x):
-        n, c, h, w = x.size()
+    def _horizontal_pyramid_pool(self, x):
+        n, t, c, h, w = x.size()
+        x = x.view(n * t, c, h, w)
         feature = []
         for scale, pyramid in zip(self.scales, self.pyramids):
             h_per_hpp = h // scale
@@ -43,12 +44,23 @@ class HorizontalPyramidMatching(nn.Module):
                                         (hpp_index + 1) * h_per_hpp)
                 x_slice = x[:, :, h_filter, :]
                 x_slice = hpp(x_slice)
-                x_slice = x_slice.view(n, -1)
+                x_slice = x_slice.view(n, t, c)
                 feature.append(x_slice)
         x = torch.stack(feature)
+        return x
 
+    def forward(self, f_c1_t2, f_c1_t1=None, f_c2_t2=None):
+        # n, t, c, h, w
+        f_c1_t2_ = self._horizontal_pyramid_pool(f_c1_t2)
+        # p, n, t, c
+        x = f_c1_t2_.mean(2)
         # p, n, c
         x = x @ self.fc_mat
         # p, n, d
 
-        return x
+        if self.training:
+            f_c1_t1_ = self._horizontal_pyramid_pool(f_c1_t1)
+            f_c2_t2_ = self._horizontal_pyramid_pool(f_c2_t2)
+            return x, (f_c1_t2_, f_c1_t1_, f_c2_t2_)
+        else:
+            return x
