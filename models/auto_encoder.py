@@ -136,25 +136,13 @@ class AutoEncoder(nn.Module):
             x_c1_t2_pred_ = self.decoder(f_a_c1_t1_, f_c_c1_t1_, f_p_c1_t2_)
             x_c1_t2_pred = x_c1_t2_pred_.view(n, t, c, h, w)
 
-            xrecon_loss = torch.stack([
-                F.mse_loss(x_c1_t2[:, i], x_c1_t2_pred[:, i])
-                for i in range(t)
-            ]).sum()
-
             f_c_c1_t1 = f_c_c1_t1_.view(f_size[1])
             f_c_c2_t2 = f_c_c2_t2_.view(f_size[1])
-            cano_cons_loss = torch.stack([
-                F.mse_loss(f_c_c1_t1[:, i], f_c_c1_t2[:, i])
-                + F.mse_loss(f_c_c1_t2[:, i], f_c_c2_t2[:, i])
-                for i in range(t)
-            ]).mean()
-
             f_p_c2_t2 = f_p_c2_t2_.view(f_size[2])
-            pose_sim_loss = F.mse_loss(f_p_c1_t2.mean(1), f_p_c2_t2.mean(1))
 
             return (
                 (f_a_c1_t2, f_c_c1_t2, f_p_c1_t2),
-                (xrecon_loss, cano_cons_loss, pose_sim_loss * 10)
+                (x_c1_t2_pred, (f_c_c1_t1, f_c_c2_t2), f_p_c2_t2)
             )
         else:  # evaluating
             return f_a_c1_t2, f_c_c1_t2, f_p_c1_t2
