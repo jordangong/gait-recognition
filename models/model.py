@@ -366,7 +366,7 @@ class Model:
             for _f_p_c1_t2, _f_p_c2_t2 in zip(*f_loss[2])
         ]).sum()
 
-        return xrecon_loss, cano_cons_loss * 10, pose_sim_loss * 100
+        return xrecon_loss / 10, cano_cons_loss, pose_sim_loss * 10
 
     def _classification_loss(self, embedding, y):
         # Duplicate labels for each part

@@ -51,20 +51,20 @@ config: Configuration = {
     'hyperparameter': {
         'model': {
             # Auto-encoder feature channels coefficient
-            'ae_feature_channels': 64,
+            'ae_feature_channels': 32,
             # Appearance, canonical and pose feature dimensions
-            'f_a_c_p_dims': (192, 192, 128),
+            'f_a_c_p_dims': (48, 48, 32),
             # HPM pyramid scales, of which sum is number of parts
             'hpm_scales': (1, 2, 4, 8),
             # Global pooling method
             'hpm_use_avg_pool': True,
             'hpm_use_max_pool': True,
             # Number of parts after Part Net
-            'tfa_num_parts': 16,
+            'tfa_num_parts': 8,
             # Attention squeeze ratio
             'tfa_squeeze_ratio': 4,
             # Embedding dimensions for each part
-            'embedding_dims': (256, 256),
+            'embedding_dims': (32, 64),
             # Batch Hard or Batch All
             'triplet_is_hard': True,
             # Use non-zero mean or sum
